@@ -1,0 +1,12 @@
+{
+  "name": "RCDongle",
+  "version": "0.0.1",
+  "private": true,
+  "dependencies": {
+    "express": "^4.16.2",
+    "websocket": "latest"
+  },
+  "scripts": {
+    "start": "node app.js"
+  }
+}
