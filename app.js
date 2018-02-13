@@ -36,7 +36,10 @@ const httpsOption = {
     cert: fs.readFileSync('/home/ec2-user/ssl-keys/cert.pem'),
 };
 https.createServer(httpsOption, app).listen(8001);
+app.set('views', __dirname + '/views');
+app.set('view engine', 'ejs');
 
 app.use(trafficLog);
-app.use(express.static(__dirname + '/var'));
+app.use(express.static(__dirname + '/static'));
+require('./route')(app)
 app.use(default404);
