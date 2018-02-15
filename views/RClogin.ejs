@@ -1,0 +1,51 @@
+</html>
+<head>
+	   <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<link rel="stylesheet" type="text/css" href="./style.css">.
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+		<meta name="viewport" content="width=device-width, initial-scale=1.0">
+</head>
+
+<body>
+	<div id="logo" align=center>
+		<img style="visibility:visible;" src="/logo"> </img>
+	</div>
+
+	<h3 id="title" style="font-size: 48px"> Login </h3>
+	
+	<div align="center" style="margin-top: 3%;">
+	<form>
+  <div class="input-group">
+    <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
+    <input id="email" type="text" class="form-control" name="username" placeholder="Username">
+  </div>
+		</br></br>
+  <div class="input-group">
+    <span class="input-group-addon"><i class="glyphicon glyphicon-lock"></i></span>
+    <input id="password" type="password" class="form-control" name="password" placeholder="Password">
+  </div>
+</form>
+	<button type="submit" class="btn btn-primary" id="loginbtn" style="margin-top: 2%;">Login</button>
+	</br></br>
+<h3 style="text-align: center; margin-top: 3%;"> Don't have an account? </h3>
+	<button onClick="create()" type="submit" class="btn btn-primary" id="createbtn" style="margin-top: 1%;">Create Account</button>
+
+</div>
+</body>
+
+<script>
+	function create() {
+		$.ajax({
+			url: '/createAccount',
+			type: 'get',
+			processData: false,
+			success: function(response) {
+				window.location.href='https://applepie.albert.tech/createAccount';
+			},
+			error: function(response) {
+
+			}
+		});
+	}
+</script>;
+</html>
