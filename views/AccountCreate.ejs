@@ -29,7 +29,7 @@
 		</br>
   		<div class="input-group">
     		<span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-    		<input id="email" type="text" class="form-control" name="username" placeholder="Username">
+    		<input id="user" type="text" class="form-control" name="username" placeholder="Username">
   		</div>
 		</br>
 		<h3 style="text-align: center; font-size: 16px;"> Enter in a valid password (6+ characters with at least one capital letter and one number) </h1>
@@ -46,7 +46,21 @@
     		<input id="password2" type="password" class="form-control" name="password2" placeholder="Password">
   		</div>
 	</form>
-	<button type="submit" class="btn btn-primary" id="createbtn" style="margin-top: 2%;">Create Account</button>
-</body>
+	<button onClick="create()" type="submit" class="btn btn-primary" id="createbtn" style="margin-top: 2%;">Create Account</button>
+
 	
+<script>
+    function create() {
+        var email = document.getElementById("email").value;
+        var username = document.getElementById("user").value;
+        var pass = document.getElementById("password").value;
+        var pass2 = document.getElementById("password2").value;
+        if (username.length < 5) {
+            alert("Username must be more than 4 characters!");
+        } else if (password.length < 6) {
+            alert("Password must be more than 5 characters!");
+        }
+     }
+</script>
+</body>
 </html>
