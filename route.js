@@ -1,7 +1,6 @@
 module.exports = function(app) {
 
     var rcdb = require('./rcdb');
-
     /////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////EJS Template Routes/////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////
@@ -48,8 +47,11 @@ module.exports = function(app) {
         var dbres = rcdb.email_exist(email, res);
     });
 
-    app.get('/api/create_account', function(req, res) {
-        // TODO
+    app.post('/api/create_account', function(req, res) {
+        var email = req.body.email;
+        var user = req.body.username;
+        var pass = req.body.password;
+        return rcdb.create_account(user, email, pass, res);
     });
     
     app.get('/api/login', function(req, res) {

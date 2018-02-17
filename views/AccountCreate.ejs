@@ -1,11 +1,11 @@
 <html>
 
 <head>
-		<link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
+		<script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+        <link href="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-Gn5384xqQ1aoWXA+058RXPxPg6fy4IWvTNh0E263XmFcJlSAwiGgFAW/dAiS6JXm" crossorigin="anonymous">
 		<link rel="stylesheet" type="text/css" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.5/css/bootstrap.min.css">
 		<link rel="stylesheet" type="text/css" href="./style.css">.
 		<meta name="viewport" content="width=device-width, initial-scale=1.0">
-		
 </head>
 
 <body>
@@ -55,11 +55,39 @@
         var username = document.getElementById("user").value;
         var pass = document.getElementById("password").value;
         var pass2 = document.getElementById("password2").value;
+    
+        var lowerpass = pass.toLowerCase();    
+    
         if (username.length < 5) {
             alert("Username must be more than 4 characters!");
         } else if (password.length < 6) {
             alert("Password must be more than 5 characters!");
-        }
+            document.getElementById("password").value="";
+            document.getElementById("password2").value="";
+        } else if (lowerpass == pass) {
+            alert("Password must contain at least one uppercase letter!");
+            document.getElementById("password").value="";
+            document.getElementById("password2").value="";
+        } else if(/\d/.test(pass) == false) {
+            alert("Password must contain at least one number!");
+            document.getElementById("password").value="";
+            document.getElementById("password2").value="";
+        } else if (pass != pass2) {
+            alert("Passwords do not match!");
+            document.getElementById("password").value="";
+            document.getElementById("password2").value="";
+        } else {
+            $.ajax({
+                url: '/api/create_account/' + email + '/' + username + '/' + pass,
+                type: 'get',
+                success: function(response) {
+
+                },
+                error: function(response) {
+                    alert("Email or username already associated with another user!");
+                }
+            });
+        }  
      }
 </script>
 </body>

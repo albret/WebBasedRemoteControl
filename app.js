@@ -2,11 +2,12 @@ const express = require('express'),
       fs = require('fs'),
       http = express(),
       https = require('https'),
-      app = express(),
       httpsOption = {
           key: fs.readFileSync('/home/ec2-user/ssl-keys/privkey.pem'),
           cert: fs.readFileSync('/home/ec2-user/ssl-keys/cert.pem'),
-      };
+      },
+      app = express(),
+      bodyParser = require('body-parser');
 
 // Log ip and url of all traffic
 var trafficLog = function(req, res, next) {
@@ -40,6 +41,8 @@ http.use(redirectHttps);
 https.createServer(httpsOption, app).listen(8001);
 app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
+app.use(express.json());
+app.use(express.urlencoded({extended: true}));
 
 // Express middleware
 app.use(trafficLog);

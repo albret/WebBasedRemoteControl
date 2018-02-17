@@ -3,9 +3,9 @@ use rcdb
 drop table users;
 
 create table users(
-	id INT NOT NULL AUTO_INCREMENT,
-	username CHAR(50),
-	email CHAR(100),
+	id INT NOT NULL AUTO_INCREMENT UNIQUE,
+	username CHAR(50) UNIQUE,
+	email CHAR(100) UNIQUE,
 	hash CHAR(64),
 	active BOOLEAN NOT NULL DEFAULT 1,
 	PRIMARY KEY (id)

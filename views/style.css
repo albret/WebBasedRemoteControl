@@ -18,6 +18,18 @@ body {
 		margin-top: -20%;
 		
 	}
+    #profileinfo p {
+        margin-left: 1%;
+    }
+
+    #recentmade h2 {
+        padding-left: 5%;
+    }
+    
+    #userfav h2 {
+        padding-left: 5%;
+    }
+    
 }
 
 @media only screen and (min-width:1224px) {
@@ -29,5 +41,29 @@ body {
 		margin-top: 0%;
 		text-align: center;
 	}
+    #profileinfo {
+        width: 30%;
+        margin-left: 3%;
+        margin-top: 2%;   
+    }
+    #profileinfo p {
+        margin-left: 2%;
+    }
+    #recentmade {
+        float: right;
+        width: 60%;
+        position: relative;
+        margin-top: -27%;
+    }
+    #recTitle {
+        margin-left: 1.3%;
+    }
+
+    #userfav {
+        float: right;
+        width: 60%;
+        position: relative;
+        margin-top: -10%;
+    }
 } 
 
