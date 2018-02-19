@@ -17,7 +17,7 @@
 	<form>
   <div class="input-group">
     <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-    <input id="email" type="text" class="form-control" name="username" placeholder="Username">
+    <input id="email" type="text" class="form-control" name="email" placeholder="Email">
   </div>
 		</br></br>
   <div class="input-group">
@@ -25,7 +25,7 @@
     <input id="password" type="password" class="form-control" name="password" placeholder="Password">
   </div>
 </form>
-	<button type="submit" class="btn btn-primary" id="loginbtn" style="margin-top: 2%;">Login</button>
+	<button type="submit" class="btn btn-primary" onClick="login()" id="loginbtn" style="margin-top: 2%;">Login</button>
 	</br>
     <button type-"submit" class="btn btn-primary" id="forgot" style="margin-top: 2%;"> Forgot Password </button>
 <h3 style="text-align: center; margin-top: 2%;"> Don't have an account? </h3>
@@ -35,6 +35,23 @@
 </body>
 
 <script>
+    function login() {
+        var email = document.getElementById("email").value;
+        var pass = document.getElementById("password").value;
+
+        $.ajax({
+            url:'/api/login',
+            type:'get',
+            processData:false,
+            success: function(response) {
+    
+            },
+            error: function(response) {
+                
+            }   
+        });
+        
+    }
 	function create() {
 		$.ajax({
 			url: '/createAccount',

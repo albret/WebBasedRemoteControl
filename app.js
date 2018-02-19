@@ -7,7 +7,7 @@ const express = require('express'),
           cert: fs.readFileSync('/home/ec2-user/ssl-keys/cert.pem'),
       },
       app = express(),
-      bodyParser = require('body-parser');
+      cookieParser = require('cookie-parser');
 
 // Log ip and url of all traffic
 var trafficLog = function(req, res, next) {
@@ -43,6 +43,7 @@ app.set('views', __dirname + '/views');
 app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
+app.use(cookieParser(require('./config').conf.cookieconfig.signkey));
 
 // Express middleware
 app.use(trafficLog);
@@ -53,9 +54,7 @@ require('./rcdb').connect();
 
 // Shut down routine
 process.on('SIGINT', function() {
-        require('./rcdb').disconnect();
-        console.log('Server shutdown');
-        process.exit();
-        });
-
-require('./rcdb').temp();
+    require('./rcdb').disconnect();
+    console.log('Server shutdown');
+    process.exit();
+});

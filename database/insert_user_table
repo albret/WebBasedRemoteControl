@@ -1,6 +1,0 @@
-use rcdb
-
-insert into users 
-(username, email, hash)
-values
-('kevin', 'kzhang', '\$2a\$10\$l/UFLqKfp04ZIMPM7GfdteFD8x6iGPscE.b.epuVmIrJDE6CEXnhu');

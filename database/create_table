@@ -1,6 +1,7 @@
 use rcdb
 
 drop table users;
+drop table sessions;
 
 create table users(
 	id INT NOT NULL AUTO_INCREMENT UNIQUE,
@@ -9,6 +10,12 @@ create table users(
 	hash CHAR(64),
 	active BOOLEAN NOT NULL DEFAULT 1,
 	PRIMARY KEY (id)
+);
+
+create table sessions(
+    email CHAR(50) NOT NULL,
+    token CHAR(128) NOT NULL,
+    expire CHAR(13) NOT NULL
 );
 
 show tables;

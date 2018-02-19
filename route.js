@@ -39,12 +39,12 @@ module.exports = function(app) {
     
     app.get('/api/user_exist/:user', function(req, res) {
         var username = req.params.user;
-        var dbres = rcdb.user_exist(username, res);
+        return dbres = rcdb.user_exist(username, res);
     });
     
     app.get('/api/email_exist/:email', function(req, res) {
         var email = req.params.email;
-        var dbres = rcdb.email_exist(email, res);
+        return dbres = rcdb.email_exist(email, res);
     });
 
     app.post('/api/create_account', function(req, res) {
@@ -54,8 +54,11 @@ module.exports = function(app) {
         return rcdb.create_account(user, email, pass, res);
     });
     
-    app.get('/api/login', function(req, res) {
-        // TODO
+    app.post('/api/login', function(req, res) {
+        var email = req.body.email;
+        var pass = req.body.pass;
+        var keep_session = req.body.keep_session;
+        return rcdb.login(email, pass, keep_session, res);
     });
     
     app.get('/api/logout', function(req, res) {
@@ -89,5 +92,36 @@ module.exports = function(app) {
     app.get('/api/send_command', function(req, res) {
         // TODO
     });
-    
+
+    app.get('/amiloggedin', function(req, res) {
+        rcdb.check_login(req, res);
+    });
+
+    app.get('/test1', function(req, res) {
+        var cs355 = require('crypto');
+        var cipher = cs355.createCipher('aes192', 'a password');
+        
+        var end = new Date(Date.now() + 2628000000);
+        var email = 'kzhang';
+        var encrypted = cipher.update(email+end.getTime(), 'utf8', 'hex');
+        encrypted += cipher.final('hex');
+        console.log(email);
+        console.log(encrypted);
+        console.log(end.getTime());
+        res.cookie('cookie_name_135', encrypted,
+            {httpOnly: true, secure: true, signed: true, expires: end});
+        res.status(200).send('ok cookie');
+    });
+
+    app.get('/test2', function(req, res) {
+        var cs355 = require('crypto');
+        var decipher = cs355.createDecipher('aes192', 'a password');
+        console.time('decrypt');
+        var decrypted = decipher.update(req.signedCookies.cookie_name_135, 'hex', 'utf8');
+        decrypted += decipher.final('utf8');
+        console.timeEnd('decrypt');
+        console.log(req.signedCookies);
+        console.log(decrypted);
+        res.end();
+    });
 };
