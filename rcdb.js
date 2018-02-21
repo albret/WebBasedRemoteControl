@@ -3,103 +3,191 @@ const mysql = require('mysql'),
       options = require('./config'),
       cs355 = require('crypto');
 
-exports.connect = function() {
+exports.connect = async function connect() {
     con = mysql.createPool({
         connectionLimit : 64,
         host            : options.conf.mysqlconfig.host,
         port            : 3306,
         user            : options.conf.mysqlconfig.user,
-        password        : options.conf.mysqlconfig.password
+        password        : options.conf.mysqlconfig.password,
+        database        : options.conf.mysqlconfig.database
     });
-    con.query("use rcdb", function(err, result, fields) {
-        if (err) {
-            console.log("Cannot connect to mysql\n" + err);
-        } else {
-            console.log("Connected to mysql");
-        }
-    });
-};
+    try {
+        await rcdb_query('use rcdb', []);
+        console.log("Connected to mysql");
+    } catch (err) {
+        console.log(err);
+        console.log("Cannot connect to mysql");
+    }
+}
 
 exports.disconnect = function() {
     console.log('Disconnect from mysql');
     con.end();
 };
 
-exports.user_exist = function(user, res) {
-    con.query("SELECT username FROM users WHERE username = ?", [user], function (err, result, fields) {
-        if (err)
-            return send_error(err, 500, "Internal server error: mysql failed", res);
-        res.send(result.length == 0 ? "no" : "yes");
-    });
+exports.user_exist = async function(user, res) {
+    try {
+        var result = await rcdb_query("SELECT username FROM users WHERE username = ?", [user]);
+        return res.send(result.length == 0 ? 'no' : 'yes');
+    } catch (err) {
+        return send_error(err, 500, "Internal server error", res);
+    }
 };
 
-exports.email_exist = function(email, res) {
-    con.query("SELECT email FROM users WHERE email = ?", [email], function (err, result, fields) {
-        if (err)
-            return send_error(err, 500, "internal server error: mysql failed", res);
-        res.send(result.length == 0 ? "no" : "yes");
-    });
+exports.email_exist = async function(email, res) {
+    try {
+        var result = await rcdb_query("SELECT email FROM users WHERE email = ?", [email]);
+        return res.send(result.length == 0 ? 'no' : 'yes');
+    } catch (err) {
+        return send_error(err, 500, "Internal server error", res);
+    }
 };
 
-exports.create_account = function(user, email, password, res) {
-    bcrypt.hash(password, 10, function(err, hash) {
-        if (err)
-            return send_error(err, 500, "Internal server error: bcrypt failed");
-        con.query("INSERT INTO users (username, email, hash) values (?, ?, ?)", [user, email, hash],
-            function (err, result, fields) {
-                if (err) {
-                    return send_error(err, 500, err.sqlMessage, res);
-                } else {
-                    return res.send("success");
-                }
-            });
-    });
+exports.create_account = async function(user, email, password, res) {
+    try {
+        var checkCookiePromise = is_logged_in;
+        var userTakenPromise = rcdb_query("SELECT username FROM users WHERE username = ?", [user]);
+        var emailTakenPromise = rcdb_query("SELECT email FROM users WHERE email = ?", [email]);
+        var hashPromise = bcrypt_hash(password);
+
+        var checkCookie = await checkCookiePromise;
+        if (checkCookie) {
+            return res.status(500).send('already logged in');
+        }
+        var userTaken = await userTakenPromise;
+        var emailTaken = await emailTakenPromise;
+        if (userTaken.length != 0) {
+            return res.status(500).send('username taken');
+        } else if (emailTaken.length != 0) {
+            return res.status(500).send('email in use');
+        } else {
+            var hash = await hashPromise;
+            var result = await rcdb_query("INSERT INTO users (username, email, hash) values (?, ?, ?)", 
+                [user, email, hash]);
+            return res.send('success');
+        }
+    } catch (err) {
+        return send_error(err, 500, "Internal server error");
+    }
+};
+//TODO redirect login to some other page, ask alex
+exports.login = async function(email, password, keep, req, res) {
+    try {
+        var getHashPromise = rcdb_query("SELECT hash FROM users WHERE email = ?", [email]);
+        var checkCookie = await is_logged_in(req, res);
+        if (checkCookie)
+            return res.send("already logged in");
+
+        var hash = await getHashPromise;
+        if (hash.length == 0)
+            return res.send("unable to login");
+
+        var checkHash = await bcrypt_comp(password, hash[0].hash);
+        if (!checkHash) {
+            return res.send("unable to login");
+        } else {
+            var end = new Date(Date.now() + (keep ? 2628000000 : 86400000));
+            var endTime = end.getTime();
+            var randomStr = cs355.randomBytes(25).toString('hex');
+            var token = lockit(email + randomStr);
+            var add_session = await rcdb_query("INSERT INTO sessions (email, token, expire) values (?, ?, ?)", 
+                [email, randomStr, endTime]);
+            res.cookie('auth', token, 
+                {httpOnly: true, secure: true, signed: true, expires: end});
+            return res.send("success");
+        }
+    } catch (err) {
+        return send_error(err, 500, "Internal server error");
+    }
 };
 
-exports.login = function(email, password, keep, aes) {
-    var hashed = bcrypt.hash(password, 10, function(err, hash) {
-        if (err)
-            return send_error(err, 500, "Internal server error: bcrypt failed");
-        con.query("SELECT * FROM users WHERE password = ? AND email = ?", [hashed, email],
-            function(err, result, fields) {
-                if (err)
-                    return send_error(err, 500, "Unable to login", res);
-                var end = new Date(Date.now() + (keep ? 2628000000 : 86400000));
-                var endTime = end.getTime();
-                var token = lockit(email + endTime);
-                con.query("INSERT INTO sessions (email, token, expire) values (?, ?, ?)", [email, token, endTime],
-                    function (err, result, fields) {
-                        if (err)
-                            return send_error(err, 500, "Internal server error: try again");
-                        res.cookie('auth', token, 
-                            {httpOnly: true, secure: true, signed: true, expires: end});
-                        res.send("success");
-                });
-        });
-    });
-};
+exports.check_login = async function(req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (check) {
+            return res.send("you are logged in");
+        } else {
+            return res.send("you are not logged in");
+        }
+    } catch(err) {
+        return send_error(err, 500, "Internal server error");
+    }
+}
 
-exports.check_login = function(req, res) {
+exports.logout = async function(req, res) {
     var encrypted = req.signedCookies.auth;
     if (!encrypted || encrypted.length < 64)
-        return res.status(200).send('you are not logged in');
+        return resolve(false);
+    res.clearCookie('auth', {httpOnly: true, secure: true, signed: true});
     var decrypted = unlockit(encrypted);
-    var email = decrypted.slice(0, decrypted.length - 13);
-    var expire = decrypted.slice(decrypted.length - 13, decrypted.length);
-    console.log(encrypted);
-    console.log(email);
-    console.log(expire);
-    con.query("SELECT * FROM sessions WHERE email = ? AND token = ? AND expire = ?", [email, encrypted, expire],
-        function (err, result, fields) {
-            if (err)
-                return send_error(err, 500, "Internal server error: mysql failed", res);
-            res.send(result.length == 0 ? "you are not logged in" : "you are logged in");
+    var email = decrypted.slice(0, decrypted.length - 50);
+    var randomStr = decrypted.slice(decrypted.length - 50, decrypted.length);
+    try {
+        var check = await rcdb_query("SELECT * FROM sessions WHERE email = ? AND token = ?", 
+            [email, randomStr]);
+        if (check.length != 0)
+            await rcdb_query("DELETE FROM sessions WHERE email = ? AND token = ?",
+                [email, randomStr]);
+        return res.send("logged out");
+    } catch(err) {
+        return send_error(err, 500, "Internal server error");
+    }
+}
+
+async function is_logged_in(req, res) {
+    return new Promise(async function(resolve, reject) {
+        var encrypted = req.signedCookies.auth;
+        if (!encrypted || encrypted.length < 64)
+            return resolve(false);
+        var decrypted = unlockit(encrypted);
+        var email = decrypted.slice(0, decrypted.length - 50);
+        var randomStr = decrypted.slice(decrypted.length - 50, decrypted.length);
+        try {
+            var check = await rcdb_query("SELECT expire FROM sessions WHERE email = ? AND token = ?", 
+                [email, randomStr]);
+            var curtime = (new Date(Date.now())).getTime();
+            resolve(check.length != 0 && check[0].expire > curtime);
+        } catch(err) {
+            reject(err);
+        }
     });
 }
 
-//TODO check if i needd to take care of errors coming out of cipher
+function rcdb_query(qstr, qarg) {
+    return new Promise(function(resolve, reject) {
+        con.query(qstr, qarg, function (err, result, fields) {
+            if (err)
+                reject(err);
+            else
+                resolve(result);
+        });
+    });
+}
+
+function bcrypt_hash(str) {
+    return new Promise(function(resolve, reject) {
+        bcrypt.hash(str, 10, function(err, hash) {
+            if (err)
+                reject(err);
+            else
+                resolve(hash);
+        });
+    });
+}
+
+function bcrypt_comp(str, hash) {
+    return new Promise(function(resolve, reject) {
+        bcrypt.compare(str, hash, function(err, res) {
+            if (err)
+                return reject(err);
+            return resolve(res == true);
+        });
+    });
+}
+
 function lockit(str) {
-    var cipher = cs355.createCipher('ae192', options.conf.cookieconfig.encryptkey);
+    var cipher = cs355.createCipher('aes192', options.conf.cookieconfig.encryptkey);
     var encrypted = cipher.update(str, 'utf8', 'hex');
     encrypted += cipher.final('hex');
     return encrypted;
@@ -118,5 +206,4 @@ function send_error(err, code, str, res) {
     console.log(">>>>>>>>>>>>>>>>>>>>>END ERROR LOGS<<<<<<<<<<<<<<<<<<<<<\n\n\n");
     return res.status(code).send({error: str});
 }
-
 

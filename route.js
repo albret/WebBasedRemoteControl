@@ -48,6 +48,7 @@ module.exports = function(app) {
     });
 
     app.post('/api/create_account', function(req, res) {
+        console.log("Made it!");
         var email = req.body.email;
         var user = req.body.username;
         var pass = req.body.password;
@@ -58,11 +59,11 @@ module.exports = function(app) {
         var email = req.body.email;
         var pass = req.body.pass;
         var keep_session = req.body.keep_session;
-        return rcdb.login(email, pass, keep_session, res);
+        return rcdb.login(email, pass, keep_session, req, res);
     });
     
     app.get('/api/logout', function(req, res) {
-        // TODO
+        return rcdb.logout(req, res);
     });
     
     app.get('/api/change_password', function(req, res) {
@@ -77,6 +78,7 @@ module.exports = function(app) {
         // TODO
     });
     
+    // FROM Eddie
     app.get('/api/create_connection', function(req, res) {
         // TODO
     });

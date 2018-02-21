@@ -3,12 +3,12 @@
   "version": "0.0.1",
   "private": true,
   "dependencies": {
-    "express": "^4.16.2",
+    "bcrypt": "^1.0.3",
+    "cookie-parser": "1.4.3",
     "ejs": "2.5.7",
-    "websocket": "latest",
-    "bcrypt": "1.0.3",
+    "express": "^4.16.2",
     "mysql": "2.15.0",
-    "cookie-parser": "1.4.3"
+    "websocket": "^1.0.25"
   },
   "scripts": {
     "start": "node app.js"

@@ -8,7 +8,6 @@ const express = require('express'),
       },
       app = express(),
       cookieParser = require('cookie-parser');
-
 // Log ip and url of all traffic
 var trafficLog = function(req, res, next) {
     var ip = req.headers['x-forwarded-for'] ||
@@ -51,6 +50,7 @@ require('./route')(app);
 app.use(express.static(__dirname + '/static'));
 app.use(default404);
 require('./rcdb').connect();
+
 
 // Shut down routine
 process.on('SIGINT', function() {
