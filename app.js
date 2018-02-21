@@ -65,12 +65,16 @@ wsServer.on('request', function(request) {
       console.log('Connection from origin ' + request.origin + ' rejected.');
       return;
     }
-    var connection = request.accept('echo-protocol', request.origin);
+    var connection = request.accept('random-number', request.origin);
     console.log((new Date()) + ' Connection accepted.');
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
             console.log('Received Message: ' + message.utf8Data);
-            connection.sendUTF(message.utf8Data);
+            for(var i = 0; i < 25; i++) {
+                var number = Math.floor(Math.random() * 100);
+                connection.sendUTF(number);
+            }
+            console.log('Numbers sent');
         }
     });
     connection.on('close', function(reasonCode, description) {

@@ -25,8 +25,10 @@ module.exports = function(app) {
         res.render('AccountCreate');
     });
     
-    app.get('/home', function(req, res) {
-        res.render('home');
+    app.get('/home/:email', function(req, res) {
+        console.log("HERE!");
+        var email = req.params.email; 
+        res.render('home'), {email: email};
     });
 
     app.get('/profile', function(req, res) {

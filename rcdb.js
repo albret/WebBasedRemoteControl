@@ -193,7 +193,7 @@ async function is_logged_in(req, res) {
         var email = decrypted.slice(0, decrypted.length - 50);
         var randomStr = decrypted.slice(decrypted.length - 50, decrypted.length);
         try {
-            var check = await rcdb_query("SELECT expire FROM sessions WHERE email = ? AND token = ? AND active = 1", 
+            var check = await rcdb_query("SELECT sessions.expire FROM sessions INNER JOIN users WHERE sessions.email = ? AND sessions.token = ? AND sessions.email = users.email AND users.active = 1", 
                 [email, randomStr]);
             var curtime = (new Date(Date.now())).getTime();
             resolve(check.length != 0 && check[0].expire > curtime);
