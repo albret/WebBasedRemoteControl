@@ -46,27 +46,26 @@ exports.email_exist = async function(email, res) {
 
 exports.create_account = async function(user, email, password, res) {
     try {
-        var checkCookiePromise = is_logged_in;
+        var checkCookiePromise = is_logged_in(req, res);
         var userTakenPromise = rcdb_query("SELECT username FROM users WHERE username = ?", [user]);
         var emailTakenPromise = rcdb_query("SELECT email FROM users WHERE email = ?", [email]);
         var hashPromise = bcrypt_hash(password);
 
         var checkCookie = await checkCookiePromise;
-        if (checkCookie) {
+        if (checkCookie)
             return res.status(500).send('already logged in');
-        }
+
         var userTaken = await userTakenPromise;
         var emailTaken = await emailTakenPromise;
-        if (userTaken.length != 0) {
+        if (userTaken.length != 0)
             return res.status(500).send('username taken');
-        } else if (emailTaken.length != 0) {
+        if (emailTaken.length != 0)
             return res.status(500).send('email in use');
-        } else {
-            var hash = await hashPromise;
-            var result = await rcdb_query("INSERT INTO users (username, email, hash) values (?, ?, ?)", 
-                [user, email, hash]);
-            return res.send('success');
-        }
+
+        var hash = await hashPromise;
+        var result = await rcdb_query("INSERT INTO users (username, email, hash) values (?, ?, ?)", 
+            [user, email, hash]);
+        return res.send('success');
     } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
@@ -74,29 +73,28 @@ exports.create_account = async function(user, email, password, res) {
 //TODO redirect login to some other page, ask alex
 exports.login = async function(email, password, keep, req, res) {
     try {
-        var getHashPromise = rcdb_query("SELECT hash FROM users WHERE email = ?", [email]);
+        var getHashPromise = rcdb_query("SELECT hash FROM users WHERE email = ? AND active = 1", [email]);
         var checkCookie = await is_logged_in(req, res);
         if (checkCookie)
-            return res.send("already logged in");
+            return res.status(500).send("already logged in");
 
         var hash = await getHashPromise;
         if (hash.length == 0)
-            return res.send("unable to login");
+            return res.status(500).send("unable to login");
 
         var checkHash = await bcrypt_comp(password, hash[0].hash);
-        if (!checkHash) {
-            return res.send("unable to login");
-        } else {
-            var end = new Date(Date.now() + (keep ? 2628000000 : 86400000));
-            var endTime = end.getTime();
-            var randomStr = cs355.randomBytes(25).toString('hex');
-            var token = lockit(email + randomStr);
-            var add_session = await rcdb_query("INSERT INTO sessions (email, token, expire) values (?, ?, ?)", 
-                [email, randomStr, endTime]);
-            res.cookie('auth', token, 
-                {httpOnly: true, secure: true, signed: true, expires: end});
-            return res.send("success");
-        }
+        if (!checkHash)
+            return res.status(500).send("unable to login");
+
+        var end = new Date(Date.now() + (keep ? 2628000000 : 86400000));
+        var endTime = end.getTime();
+        var randomStr = cs355.randomBytes(25).toString('hex');
+        var token = lockit(email + randomStr);
+        var add_session = await rcdb_query("INSERT INTO sessions (email, token, expire) values (?, ?, ?)", 
+            [email, randomStr, endTime]);
+        res.cookie('auth', token, 
+            {httpOnly: true, secure: true, signed: true, expires: end});
+        return res.send('success');
     } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
@@ -105,11 +103,10 @@ exports.login = async function(email, password, keep, req, res) {
 exports.check_login = async function(req, res) {
     try {
         var check = await is_logged_in(req, res);
-        if (check) {
+        if (check)
             return res.send("you are logged in");
-        } else {
+        else
             return res.send("you are not logged in");
-        }
     } catch(err) {
         return send_error(err, 500, "Internal server error");
     }
@@ -135,6 +132,58 @@ exports.logout = async function(req, res) {
     }
 }
 
+exports.change_password = async function(oldPass, newPass, req, res) {
+    try {
+        var checkCookiePromise = is_logged_in(req, res);
+        var newHashPromise = bcrypt_hash(newPass);
+
+        var checkCookie = await checkCookiePromise;
+        if (!checkCookie)
+            return res.status(500).send('not logged in');
+
+        var encrypted = req.signedCookies.auth;
+        var decrypted = unlockit(encrypted);
+        var email = decrypted.slice(0, decrypted.length - 50);
+        var oldHash = await rcdb_query("SELECT hash FROM users WHERE email = ? AND active = 1", [email]);
+        if (oldHash.length == 0)
+            return res.status(500).send('can\'t find user from email');
+
+        var oldPassCheck = await bcrypt_comp(oldPass, oldHash[0].hash);
+        if (!oldPassCheck)
+            return res.status(500).send('incorrect password');
+        
+        var newHash = await newHashPromise;
+        var updateHash = rcdb_query('UPDATE users SET hash = ? WHERE email = ?', [newHash, email]);
+        return res.send('success');
+    } catch (err) {
+        return send_error(err, 500, "Internal server error");
+    }
+}
+
+exports.delete_account = async function(username, email, password, req, res) {
+    try {
+        var getHashPromise = rcdb_query("SELECT hash FROM users WHERE email = ? AND username = ?", 
+            [email, username]);
+        var checkCookie = await is_logged_in(req, res);
+        if (!checkCookie)
+            return res.status(500).send("not logged in");
+
+        var hash = await getHashPromise;
+        if (hash.length == 0)
+            return res.status(500).send("Wrong username or email");
+
+        var checkHash = await bcrypt_comp(password, hash[0].hash);
+        if (!checkHash)
+            return res.status(500).send("Wrong password");
+
+        var setInactive = await rcdb_query("UPDATE users SET active = 0 WHERE username = ?", [username]);
+        var removeAllSessions = await rcdb_query("DELETE FROM sessions WHERE email = ?", [email]);
+        return res.send("success");
+    } catch (err) {
+        return send_error(err, 500, "Internal server error");
+    }
+}
+
 async function is_logged_in(req, res) {
     return new Promise(async function(resolve, reject) {
         var encrypted = req.signedCookies.auth;
@@ -144,7 +193,7 @@ async function is_logged_in(req, res) {
         var email = decrypted.slice(0, decrypted.length - 50);
         var randomStr = decrypted.slice(decrypted.length - 50, decrypted.length);
         try {
-            var check = await rcdb_query("SELECT expire FROM sessions WHERE email = ? AND token = ?", 
+            var check = await rcdb_query("SELECT expire FROM sessions WHERE email = ? AND token = ? AND active = 1", 
                 [email, randomStr]);
             var curtime = (new Date(Date.now())).getTime();
             resolve(check.length != 0 && check[0].expire > curtime);

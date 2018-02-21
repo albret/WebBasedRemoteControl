@@ -66,16 +66,21 @@ module.exports = function(app) {
         return rcdb.logout(req, res);
     });
     
-    app.get('/api/change_password', function(req, res) {
-        // TODO
+    app.get('/api/change_password', function(req, res) {//TODO need testing
+        var oldpass = req.body.oldPassword;
+        var newpass = req.body.newPassword;
+        return rcdb.change_password(oldpass, newpass, req, res);
     });
     
     app.get('/api/reset_password', function(req, res) {
         // TODO
     });
     
-    app.get('/api/delete_account', function(req, res) {
-        // TODO
+    app.get('/api/delete_account', function(req, res) {//TODO need testing
+        var user = req.body.username;
+        var email = req.body.email;
+        var pass = req.body.password;
+        return rcdb.delete_account(username, email, password, req, res);
     });
     
     // FROM Eddie
