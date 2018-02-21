@@ -24,13 +24,13 @@ module.exports = function(app) {
     app.get('/createAccount', function(req, res) {
         res.render('AccountCreate');
     });
-    
-    app.get('/home/:email', function(req, res) {
-        console.log("HERE!");
-        var email = req.params.email; 
-        res.render('home'), {email: email};
+   
+    app.get('/home', async function(req, res) {
+        var email = await rcdb.get_user_data(req, res);
+        console.log(email);
+        res.render('home', {email: email});//TODO put variables in home.ejs to receive data
     });
-
+ 
     app.get('/profile', function(req, res) {
         res.render('profile');
     });
@@ -60,7 +60,8 @@ module.exports = function(app) {
     app.post('/api/login', function(req, res) {
         var email = req.body.email;
         var pass = req.body.pass;
-        var keep_session = req.body.keep_session;
+        var keep_session = req.body.remember;
+        console.log("remember: "+keep_session);
         return rcdb.login(email, pass, keep_session, req, res);
     });
     
