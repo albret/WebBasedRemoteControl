@@ -46,11 +46,12 @@
     		<input id="password2" type="password" class="form-control" name="password2" placeholder="Password">
   		</div>
 	</form>
-	<button onClick="create()" type="submit" class="btn btn-primary" id="createbtn" style="margin-top: 2%;">Create Account</button>
+	<button type="submit" class="btn btn-primary" id="createbtn" style="margin-top: 2%;">Create Account</button>
 
 	
 <script>
-    function create() {
+    document.getElementById('createbtn').addEventListener("click", function () {
+
         var email = document.getElementById("email").value;
         var username = document.getElementById("user").value;
         var pass = document.getElementById("password").value;
@@ -60,6 +61,9 @@
     
         if (username.length < 5) {
             alert("Username must be more than 4 characters!");
+            document.getElementById("user").value="";
+            document.getElementById("password").value="";
+            document.getElementById("password2").value="";
         } else if (password.length < 6) {
             alert("Password must be more than 5 characters!");
             document.getElementById("password").value="";
@@ -77,18 +81,24 @@
             document.getElementById("password").value="";
             document.getElementById("password2").value="";
         } else {
+            //alert("lets go!");
             $.ajax({
-                url: '/api/create_account/' + email + '/' + username + '/' + pass,
-                type: 'get',
+                url: '/api/create_account',
+                type: 'POST',
+                data: {
+                    'email': email,
+                    'username' : username,
+                    'password' : pass
+                },
                 success: function(response) {
-
+                    alert('success!');
                 },
                 error: function(response) {
                     alert("Email or username already associated with another user!");
                 }
             });
         }  
-     }
+     });
 </script>
 </body>
 </html>

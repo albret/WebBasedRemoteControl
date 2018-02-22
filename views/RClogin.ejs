@@ -25,33 +25,45 @@
     <input id="password" type="password" class="form-control" name="password" placeholder="Password">
   </div>
 </form>
-	<button type="submit" class="btn btn-primary" onClick="login()" id="loginbtn" style="margin-top: 2%;">Login</button>
-	</br>
+    <div class="form-check">
+    <input type="checkbox" class="form-check-input" id="remember">
+    <label class="form-check-label" for="remember">Remember me</label>
+    <div id="loginforgot">
+	<button type="submit" class="btn btn-primary" id="loginbtn" style="margin-top: 2%; margin-right: 2%; width: 7%;">Login</button>
     <button type-"submit" class="btn btn-primary" id="forgot" style="margin-top: 2%;"> Forgot Password </button>
-<h3 style="text-align: center; margin-top: 2%;"> Don't have an account? </h3>
+    </div>
+    </br>
+    <h3 style="text-align: center; margin-top: 2%;"> Don't have an account? </h3>
 	<button onClick="create()" type="submit" class="btn btn-primary" id="createbtn" style="margin-top: 1%;">Create Account</button>
 
 </div>
-</body>
 
 <script>
-    function login() {
+    console.log("running!");
+    document.getElementById('loginbtn').addEventListener("click", function () {
+        console.log("logging in!");
         var email = document.getElementById("email").value;
         var pass = document.getElementById("password").value;
-
+        var remember = document.getElementById("remember").value;
+        var checked = $('#remember').is(":checked");  
         $.ajax({
             url:'/api/login',
-            type:'get',
-            processData:false,
+            type:'POST',
+            data: {
+                'email': email,
+                'pass' : pass,
+                'remember' : remember,
+                'checked' : checked
+            },
             success: function(response) {
-    
+                window.location.href="https://applepie.albert.tech/home?email=" + email;
             },
             error: function(response) {
-                
+                alert("No user with that email or incorrect password!");
             }   
         });
         
-    }
+    });
 	function create() {
 		$.ajax({
 			url: '/createAccount',
@@ -65,5 +77,6 @@
 			}
 		});
 	}
-</script>;
+</script>
+</body>
 </html>
