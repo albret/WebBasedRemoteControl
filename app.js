@@ -52,35 +52,8 @@ wsServer = new WebSocketServer({
     autoAcceptConnections: false
 });
 
-function originIsAllowed(origin) {
-    //TODO add logic to determine if correct origin
-    console.log(origin + ' attempting to connect.');
-    return true;
-}
-
-//Websocket receive connection requests
-wsServer.on('request', function(request) {
-    if (!originIsAllowed(request.origin)) {
-      request.reject();
-      console.log('Connection from origin ' + request.origin + ' rejected.');
-      return;
-    }
-    var connection = request.accept('random-number', request.origin);
-    console.log((new Date()) + ' Connection accepted.');
-    connection.on('message', function(message) {
-        if (message.type === 'utf8') {
-            console.log('Received Message: ' + message.utf8Data);
-            for(var i = 0; i < 25; i++) {
-                var number = Math.floor(Math.random() * 100);
-                connection.sendUTF(number);
-            }
-            console.log('Numbers sent');
-        }
-    });
-    connection.on('close', function(reasonCode, description) {
-        console.log((new Date()) + connection.remoteAddress + ' disconnected.');
-    });
-})
+//Websocket receive connection request
+wsServer.on('request', require('./wshandler').handle_request);
 
 // Express middleware
 app.use(trafficLog);
