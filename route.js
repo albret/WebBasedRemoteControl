@@ -54,7 +54,7 @@ module.exports = function(app) {
         var email = req.body.email;
         var user = req.body.username;
         var pass = req.body.password;
-        return rcdb.create_account(user, email, pass, res);
+        return rcdb.create_account(user, email, pass, req, res);
     });
     
     app.post('/api/login', function(req, res) {
@@ -86,13 +86,9 @@ module.exports = function(app) {
         return rcdb.delete_account(username, email, password, req, res);
     });
     
-    // FROM Eddie
-    app.get('/api/create_connection', function(req, res) {
-        // TODO
-    });
-    
-    app.get('/api/connecti_to', function(req, res) {
-        // TODO
+    app.get('/api/wss_connect', function(req, res) {
+        var key = req.body.connectionKey;
+        return rcdb.wss_connect(key, req, res);
     });
     
     app.get('/api/close_connection', function(req, res) {
@@ -134,4 +130,9 @@ module.exports = function(app) {
         console.log(decrypted);
         res.end();
     });
+    
+    app.get('/test3/:key', function(req, res) {
+        var key = req.params.key;
+        return rcdb.wss_connect(key, req, res);
+    });    
 };
