@@ -44,7 +44,7 @@ exports.email_exist = async function(email, res) {
     }
 };
 
-exports.create_account = async function(user, email, password, res) {
+exports.create_account = async function(user, email, password, req, res) {
     try {
         var checkCookiePromise = is_logged_in(req, res);
         var userTakenPromise = rcdb_query("SELECT username FROM users WHERE username = ?", [user]);
@@ -189,11 +189,37 @@ exports.get_user_data = async function(req, res) {
     }
 }
 
+exports.wss_connect = async function(key, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send("not logged in");
+
+        var checkKey = await rcdb_query('SELECT * FROM wsSessions WHERE connection_key = ?', [key]);
+        if (checkKey.length == 0)
+            return res.status(500).send("Internal server error: connection key not found");
+
+        var currTime = (new Date((Date.now()))).getTime();
+        if (checkKey[0].email != 'unused' && currTime < checkKey[0].expire_time)
+            return res.status(500).send("Internal server error: bad connection key");
+
+        var expTime = (new Date((Date.now() + 43200000))).getTime();
+        var addConnectionKey = await rcdb_query(
+            'UPDATE wsSessions SET email = ?, expire = ? WHERE connection_key = ?', 
+            [check.email, currTime, key]);
+        return res.send("success");
+    } catch(err) {
+        return send_error(err, 500, "Internal server error");
+    }
+}
+
 async function is_logged_in(req, res) {
     return new Promise(async function(resolve, reject) {
+        if (typeof req.signedCookies == 'undefined')
+            return resolve({auth: false, email: null});
         var encrypted = req.signedCookies.auth;
         if (!encrypted || encrypted.length < 64)
-            resolve({auth: false, email: null});
+            return resolve({auth: false, email: null});
         var decrypted = unlockit(encrypted);
         var email = decrypted.slice(0, decrypted.length - 50);
         var randomStr = decrypted.slice(decrypted.length - 50, decrypted.length);
@@ -201,9 +227,9 @@ async function is_logged_in(req, res) {
             var check = await rcdb_query("SELECT sessions.expire FROM sessions INNER JOIN users WHERE sessions.email = ? AND sessions.token = ? AND sessions.email = users.email AND users.active = 1", 
                 [email, randomStr]);
             var curtime = (new Date(Date.now())).getTime();
-            resolve({auth: (check.length != 0 && check[0].expire > curtime), email: email});
+            return resolve({auth: (check.length != 0 && check[0].expire > curtime), email: email});
         } catch(err) {
-            reject(err);
+            return reject(err);
         }
     });
 }
@@ -212,20 +238,23 @@ function rcdb_query(qstr, qarg) {
     return new Promise(function(resolve, reject) {
         con.query(qstr, qarg, function (err, result, fields) {
             if (err)
-                reject(err);
+                return reject(err);
             else
-                resolve(result);
+                return resolve(result);
         });
     });
+}
+exports.db_query = async function(qstr, qarg) {
+    return rcdb_query(qstr, qarg);
 }
 
 function bcrypt_hash(str) {
     return new Promise(function(resolve, reject) {
         bcrypt.hash(str, 10, function(err, hash) {
             if (err)
-                reject(err);
+                return reject(err);
             else
-                resolve(hash);
+                return resolve(hash);
         });
     });
 }
