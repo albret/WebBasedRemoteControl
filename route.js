@@ -36,7 +36,12 @@ module.exports = function(app) {
     });
     
     app.get('/resetPassword', function(req, res){
+        console.log("Hey, u're in route.js /resetPassword res.render()");
         res.render('resetPassword');
+    });
+    
+    app.get('/deleteAccout', function(req, res){
+      res.render('deleteAccount');
     });
 
     /////////////////////////////////////////////////////////////////////////////////////
@@ -79,7 +84,7 @@ module.exports = function(app) {
         return rcdb.change_password(oldpass, newpass, req, res);
     });
     
-    app.get('/api/reset_password', function(req, res) {
+    app.get('/api/forget_password', function(req, res) {
         // TODO
     });
     
