@@ -40,7 +40,7 @@ module.exports = function(app) {
         res.render('resetPassword');
     });
     
-    app.get('https://applepie.albert.tech/deleteAccout', function(req, res) {
+    app.get('https://applepie.albert.tech/deleteAccount', function(req, res) {
       res.render('deleteAccount');
     });
 
