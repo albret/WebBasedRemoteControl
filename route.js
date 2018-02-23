@@ -36,7 +36,7 @@ module.exports = function(app) {
     });
     
     app.get('/resetPassword', function(req, res){
-        res.render('restPassword');
+        res.render('resetPassword');
     });
 
     /////////////////////////////////////////////////////////////////////////////////////
