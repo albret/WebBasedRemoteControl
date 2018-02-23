@@ -35,7 +35,7 @@
     </br>
     <h3 style="text-align: center; margin-top: 2%;"> Don't have an account? </h3>
 	<button onClick="create()" type="submit" class="btn btn-primary" id="createbtn" style="margin-top: 1%;">Create Account</button>
-
+	<p onClick="forgetPass()"><u>forget password?</u></p>
 </div>
 
 <script>
@@ -76,6 +76,10 @@
 
 			}
 		});
+	}
+	
+	function forgetPass() {
+		alert("An email has been sent to you, Check your inbox.");
 	}
 </script>
 </body>
