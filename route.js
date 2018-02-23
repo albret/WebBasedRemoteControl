@@ -35,12 +35,12 @@ module.exports = function(app) {
         res.render('profile');
     });
     
-    app.get('/resetPassword', function(req, res){
+    app.get('/resetPassword', function(req, res) {
         console.log("Hey, u're in route.js /resetPassword res.render()");
         res.render('resetPassword');
     });
     
-    app.get('/deleteAccout', function(req, res){
+    app.get('/deleteAccout', function(req, res) {
       res.render('deleteAccount');
     });
 
