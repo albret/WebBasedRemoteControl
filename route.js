@@ -35,12 +35,12 @@ module.exports = function(app) {
         res.render('profile');
     });
     
-    app.get('https://applepie.albert.tech/resetPassword', function(req, res) {
+    app.get('/resetPassword', function(req, res) {
         console.log("Hey, u're in route.js /resetPassword res.render()");
         res.render('resetPassword');
     });
     
-    app.get('https://applepie.albert.tech/deleteAccount', function(req, res) {
+    app.get('/deleteAccount', function(req, res) {
       res.render('deleteAccount');
     });
 
@@ -59,7 +59,6 @@ module.exports = function(app) {
     });
 
     app.post('/api/create_account', function(req, res) {
-        console.log("Made it!");
         var email = req.body.email;
         var user = req.body.username;
         var pass = req.body.password;
@@ -70,7 +69,6 @@ module.exports = function(app) {
         var email = req.body.email;
         var pass = req.body.pass;
         var keep_session = req.body.remember;
-        console.log("remember: "+keep_session);
         return rcdb.login(email, pass, keep_session, req, res);
     });
     
@@ -85,7 +83,14 @@ module.exports = function(app) {
     });
     
     app.get('/api/forget_password', function(req, res) {
-        // TODO
+        var email = req.body.email;
+        return rcdb.forget_password(email, req, res);
+    });
+
+    app.get('/api/reset_password', function(req, res) {
+        var token = req.body.token;
+        var password = req.body.password;
+        return rcdb.reset_password(token, password, req, res); 
     });
     
     app.get('/api/delete_account', function(req, res) {//TODO need testing
@@ -112,34 +117,6 @@ module.exports = function(app) {
         rcdb.check_login(req, res);
     });
 
-    app.get('/test1', function(req, res) {
-        var cs355 = require('crypto');
-        var cipher = cs355.createCipher('aes192', 'a password');
-        
-        var end = new Date(Date.now() + 2628000000);
-        var email = 'kzhang';
-        var encrypted = cipher.update(email+end.getTime(), 'utf8', 'hex');
-        encrypted += cipher.final('hex');
-        console.log(email);
-        console.log(encrypted);
-        console.log(end.getTime());
-        res.cookie('cookie_name_135', encrypted,
-            {httpOnly: true, secure: true, signed: true, expires: end});
-        res.status(200).send('ok cookie');
-    });
-
-    app.get('/test2', function(req, res) {
-        var cs355 = require('crypto');
-        var decipher = cs355.createDecipher('aes192', 'a password');
-        console.time('decrypt');
-        var decrypted = decipher.update(req.signedCookies.cookie_name_135, 'hex', 'utf8');
-        decrypted += decipher.final('utf8');
-        console.timeEnd('decrypt');
-        console.log(req.signedCookies);
-        console.log(decrypted);
-        res.end();
-    });
-    
     app.get('/test3/:key', function(req, res) {
         var key = req.params.key;
         return rcdb.wss_connect(key, req, res);

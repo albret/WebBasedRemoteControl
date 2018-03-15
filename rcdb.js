@@ -1,6 +1,7 @@
 const mysql = require('mysql'),
       bcrypt = require('bcrypt'),
       options = require('./config'),
+      nodemailer = require('nodemailer'),
       cs355 = require('crypto');
 
 exports.connect = async function connect() {
@@ -178,6 +179,35 @@ exports.delete_account = async function(username, email, password, req, res) {
     }
 }
 
+exports.forget_password = async function(email, req, res) {
+    try {
+        var result = await rcdb_query("SELECT email FROM users WHERE email = ?", [email]);
+        if (result.length == 0)
+            return res.status(500).send("Email not associated with an account");
+
+        var randomStr = cs355.randomBytes(32).toString('hex');
+        var endTime = new Date(Date.now() + 900000).getTime();
+        var result = await rcdb_query("INSERT INTO resetPassword (email, token, expire) values (?, ?, ?)",
+            [email, randomStr, endTime]);
+
+        var link = 'http://' + req.hostname + '/resetPassword';
+        var subject = 'RCWeb - Reset your password';
+        var content = `<p>To reset your password, use the following code in the reset password page.</p>
+                       <p>${randomStr}</p>
+                       <a href=\"${link}\">${link}</a>
+                       <p>If you did not request to reset your password you can safely ignore this message</p>
+                       <p>This code will expire after 15 minutes</p>`;
+        await send_mail(email, subject, content);
+        return res.send('done');
+    } catch (err) {
+        return send_error(err, 500, "Internal server error");
+    }
+}
+
+exports.reset_password = async function(token, password, req, res) {
+    return res.status(500).send("not implemented"); //TODO
+}
+
 exports.get_user_data = async function(req, res) {
     try {
         var check = await is_logged_in(req, res);
@@ -265,6 +295,33 @@ function bcrypt_comp(str, hash) {
             if (err)
                 return reject(err);
             return resolve(res == true);
+        });
+    });
+}
+
+function send_mail(recipient, subject, body) {
+    return new Promise(function(resolve, reject) {
+        var transporter = nodemailer.createTransport({
+            host: 'smtp.zoho.com',
+            port: 465,
+            secure: true,
+            auth: {
+                user: options.conf.emailconfig.user,
+                pass: options.conf.emailconfig.pass
+            }
+        });
+        var mailOptions = {
+            from: 'admin <admin@rcweb.xyz>',
+            to: recipient,
+            subject: subject,
+            html: body
+        };
+        transporter.sendMail(mailOptions, (error, info) => {
+            if (error) {
+                return reject(error);
+            } else {
+                return resolve();
+            }
         });
     });
 }

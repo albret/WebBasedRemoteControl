@@ -3,6 +3,7 @@ use rcdb
 drop table users;
 drop table sessions;
 drop table wsSessions;
+drop table resetPassword;
 
 create table users(
 	id INT NOT NULL AUTO_INCREMENT UNIQUE,
@@ -22,6 +23,12 @@ create table sessions(
 create table wsSessions(
     email CHAR(50) NOT NULL,
     connection_key CHAR(4) NOT NULL,
+    expire CHAR(13) NOT NULL
+);
+
+create table resetPassword(
+    email CHAR(50) NOT NULL,
+    token CHAR(64) NOT NULL,
     expire CHAR(13) NOT NULL
 );
 
