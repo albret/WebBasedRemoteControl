@@ -2,9 +2,10 @@ const express = require('express'),
       fs = require('fs'),
       http = express(),
       https = require('https'),
+      conf = require('./config'),
       httpsOption = {
-          key: fs.readFileSync('/home/ec2-user/ssl-keys/privkey.pem'),
-          cert: fs.readFileSync('/home/ec2-user/ssl-keys/cert.pem'),
+          key: fs.readFileSync(conf.https.key),
+          cert: fs.readFileSync(conf.https.cert),
       },
       app = express(),
       cookieParser = require('cookie-parser'),
@@ -40,11 +41,11 @@ http.use(redirectHttps);
 
 // Start server with options
 var secureServer = https.createServer(httpsOption, app).listen(8001);
-app.set('views', __dirname + '/views');
+app.set('views', __dirname + '/../views');
 app.set('view engine', 'ejs');
 app.use(express.json());
 app.use(express.urlencoded({extended: true}));
-app.use(cookieParser(require('./config').conf.cookieconfig.signkey));
+app.use(cookieParser(conf.cookie.signkey));
 
 // Websocket server startup
 wsServer = new WebSocketServer({
@@ -58,7 +59,7 @@ wsServer.on('request', require('./wshandler').handle_request);
 // Express middleware
 app.use(trafficLog);
 require('./route')(app);
-app.use(express.static(__dirname + '/static'));
+app.use(express.static(__dirname + '/../static'));
 app.use(default404);
 require('./rcdb').connect();
 

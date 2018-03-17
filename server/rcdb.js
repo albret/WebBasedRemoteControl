@@ -1,17 +1,17 @@
 const mysql = require('mysql'),
       bcrypt = require('bcrypt'),
-      options = require('./config'),
+      conf = require('./config'),
       nodemailer = require('nodemailer'),
       cs355 = require('crypto');
 
 exports.connect = async function connect() {
     con = mysql.createPool({
         connectionLimit : 64,
-        host            : options.conf.mysqlconfig.host,
-        port            : 3306,
-        user            : options.conf.mysqlconfig.user,
-        password        : options.conf.mysqlconfig.password,
-        database        : options.conf.mysqlconfig.database
+        host            : conf.mysql.host,
+        port            : conf.mysql.port,
+        user            : conf.mysql.user,
+        password        : conf.mysql.password,
+        database        : conf.mysql.database
     });
     try {
         await rcdb_query('use rcdb', []);
@@ -122,7 +122,7 @@ exports.logout = async function(req, res) {
             [check.email, check.token]);
         if (dbcheck.length != 0)
             await rcdb_query("DELETE FROM sessions WHERE email = ? AND token = ?",
-                [email, randomStr]);
+                [check.email, check.token]);
         return res.send("logged out");
     } catch(err) {
         return send_error(err, 500, "Internal server error");
@@ -304,7 +304,7 @@ async function is_logged_in(req, res) {
             var check = await rcdb_query("SELECT sessions.expire FROM sessions INNER JOIN users WHERE sessions.email = ? AND sessions.token = ? AND sessions.email = users.email AND users.active = 1", 
                 [email, randomStr]);
             var curtime = (new Date(Date.now())).getTime();
-            return resolve({auth: (check.length != 0 && check[0].expire > curtime), email: email});
+            return resolve({auth: (check.length != 0 && check[0].expire > curtime), email: email, token: randomStr});
         } catch(err) {
             return reject(err);
         }
@@ -353,8 +353,8 @@ function send_mail(recipient, subject, body) {
             port: 465,
             secure: true,
             auth: {
-                user: options.conf.emailconfig.user,
-                pass: options.conf.emailconfig.pass
+                user: conf.email.user,
+                pass: conf.email.pass
             }
         });
         var mailOptions = {
@@ -374,14 +374,14 @@ function send_mail(recipient, subject, body) {
 }
 
 function lockit(str) {
-    var cipher = cs355.createCipher('aes192', options.conf.cookieconfig.encryptkey);
+    var cipher = cs355.createCipher('aes192', conf.cookie.encryptkey);
     var encrypted = cipher.update(str, 'utf8', 'hex');
     encrypted += cipher.final('hex');
     return encrypted;
 }
 
 function unlockit(str) {
-    var decipher = cs355.createDecipher('aes192', options.conf.cookieconfig.encryptkey);
+    var decipher = cs355.createDecipher('aes192', conf.cookie.encryptkey);
     var decrypted = decipher.update(str, 'hex', 'utf8');
     decrypted += decipher.final('utf8');
     return decrypted;

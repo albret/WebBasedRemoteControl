@@ -13,6 +13,6 @@
     "websocket": "^1.0.25"
   },
   "scripts": {
-    "start": "node app.js"
+    "start": "node server/app.js"
   }
 }
