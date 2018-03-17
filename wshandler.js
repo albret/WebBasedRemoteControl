@@ -39,3 +39,22 @@ async function get_valid_key() {
         if (currTime > validKey[0].expire_time) return connectionKey;
     }
 }
+exports.send_command = async function(connectionKey, command) {
+    var connection = connections[connectionKey];
+    console.log(connectionKey);
+    if (!connection) {
+        return 0;
+    }
+    if (connection.connected) {
+        connection.sendUTF(command);
+        return 1;
+    }
+    return 0;
+}
+exports.close_connection = async function(connectionKey) {
+var connection = connections[connectionKey];
+    console.log(connectionKey);
+    if (connection) {
+        if (connection.connected) connection.close();
+    }
+}

@@ -76,41 +76,43 @@ module.exports = function(app) {
         return rcdb.logout(req, res);
     });
     
-    app.get('/api/change_password', function(req, res) {//TODO need testing
+    app.post('/api/change_password', function(req, res) {//TODO need testing
         var oldpass = req.body.oldPassword;
         var newpass = req.body.newPassword;
         return rcdb.change_password(oldpass, newpass, req, res);
     });
     
-    app.get('/api/forget_password', function(req, res) {
+    app.post('/api/forgot_password', function(req, res) {
         var email = req.body.email;
-        return rcdb.forget_password(email, req, res);
+        return rcdb.forgot_password(email, req, res);
     });
 
-    app.get('/api/reset_password', function(req, res) {
+    app.post('/api/reset_password', function(req, res) {
         var token = req.body.token;
         var password = req.body.password;
         return rcdb.reset_password(token, password, req, res); 
     });
     
-    app.get('/api/delete_account', function(req, res) {//TODO need testing
+    app.post('/api/delete_account', function(req, res) {//TODO need testing
         var user = req.body.username;
         var email = req.body.email;
         var pass = req.body.password;
         return rcdb.delete_account(username, email, password, req, res);
     });
     
-    app.get('/api/wss_connect', function(req, res) {
+    app.post('/api/wss_connect', function(req, res) {
         var key = req.body.connectionKey;
         return rcdb.wss_connect(key, req, res);
     });
     
     app.get('/api/close_connection', function(req, res) {
-        // TODO
+        var email = req.body.email;
+        return rcdb.close_connection(req, res);
     });
     
-    app.get('/api/send_command', function(req, res) {
-        // TODO
+    app.post('/api/send_command', function(req, res) {
+        var command = req.body.command;
+        return rcdb.send_command(command, req, res);
     });
 
     app.get('/amiloggedin', function(req, res) {
@@ -120,5 +122,10 @@ module.exports = function(app) {
     app.get('/test3/:key', function(req, res) {
         var key = req.params.key;
         return rcdb.wss_connect(key, req, res);
-    });    
+    });
+    
+    app.get('/test4/:command', function(req, res) {
+        var command = req.params.command;
+        return rcdb.send_command(command, req, res); 
+    });   
 };

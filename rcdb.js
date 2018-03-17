@@ -179,7 +179,7 @@ exports.delete_account = async function(username, email, password, req, res) {
     }
 }
 
-exports.forget_password = async function(email, req, res) {
+exports.forgot_password = async function(email, req, res) {
     try {
         var result = await rcdb_query("SELECT email FROM users WHERE email = ?", [email]);
         if (result.length == 0)
@@ -205,7 +205,17 @@ exports.forget_password = async function(email, req, res) {
 }
 
 exports.reset_password = async function(token, password, req, res) {
-    return res.status(500).send("not implemented"); //TODO
+    try {
+        var tokenValid = await rcdb_query('SELECT email, expire FROM resetPassword WHERE token = ?', [token]);
+        if (tokenValid.length == 0)
+            return res.status(500).send("Invalid token");
+
+        var newHash = await bcrypt_hash(password);
+        await rcdb_query('UPDATE users SET hash = ? WHERE email = ?', [newHash, tokenValid[0].email]);
+        return res.send('success');
+    } catch (err) {
+        return send_error(err, 500, "Internal server error", res);
+    }
 }
 
 exports.get_user_data = async function(req, res) {
@@ -232,13 +242,50 @@ exports.wss_connect = async function(key, req, res) {
         var currTime = (new Date((Date.now()))).getTime();
         if (checkKey[0].email != 'unused' && currTime < checkKey[0].expire_time)
             return res.status(500).send("Internal server error: bad connection key");
-
+        var removeConnectionKey = await rcdb_query(
+            'UPDATE wsSessions SET email = ? WHERE email = ?',
+            ["unused", check.email]);
         var expTime = (new Date((Date.now() + 43200000))).getTime();
         var addConnectionKey = await rcdb_query(
             'UPDATE wsSessions SET email = ?, expire = ? WHERE connection_key = ?', 
             [check.email, currTime, key]);
         return res.send("success");
     } catch(err) {
+        return send_error(err, 500, "Internal server error");
+    }
+}
+
+exports.send_command = async function(command, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send("not logged in");
+        var getKey = await rcdb_query('SELECT * FROM wsSessions WHERE email = ?', [check.email]);
+        if (getKey.length == 0) 
+            return res.status(500).send("Internal server error: connection key not found");
+        var response = await require('./wshandler.js').send_command(getKey, command);
+        if (response)
+            return res.send("success");
+        return res.status(500).send("Connection has already been closed");
+    } catch(err) {
+        return send_error(err, 500, "Internal server error");
+    }
+}
+
+exports.close_connection = async function(req, res) {
+    try {    
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send("not logged in");
+        var getKey = await rcdb_query('SELECT * FROM wsSessions WHERE email = ?', [check.email]);
+        if (getKey.length == 0)
+            return res.status(500).send("Internal server error: connection key not found");
+        var removeConnectionKey = await rcdb_query(
+            'UPDATE wsSessions SET email = ? WHERE connection_key = ?',
+            ["unused", getKey]);
+        var response = await require('./wshandler.js').close_connection(getKey);
+        return res.send("success");
+      } catch(err) {
         return send_error(err, 500, "Internal server error");
     }
 }
