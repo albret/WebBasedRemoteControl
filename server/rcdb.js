@@ -212,6 +212,7 @@ exports.reset_password = async function(token, password, req, res) {
 
         var newHash = await bcrypt_hash(password);
         await rcdb_query('UPDATE users SET hash = ? WHERE email = ?', [newHash, tokenValid[0].email]);
+        await rcdb_query('DELETE FROM resetPassword WHERE token = ?', [token]);
         return res.send('success');
     } catch (err) {
         return send_error(err, 500, "Internal server error", res);
@@ -311,6 +312,39 @@ async function is_logged_in(req, res) {
     });
 }
 
+exports.get_layout = async function(req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        var layouts = await rcdb_query('SELECT id, data FROM layouts WHERE email = ?', [check.email]);
+        if (layouts.length == 0)
+            return res.send('no layouts associated with your email');
+        return res.json(layouts);
+    } catch(err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
+exports.save_layout = async function(data, id, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        if (id == -1) {
+            var result = await rcdb_query('INSERT INTO layouts (email, data) values (?, ?)',
+                [check.email, JSON.stringify(data)]);
+            return res.send('success id=' + result.insertId);
+        } else {
+            await rcdb_query('UPDATE layouts SET data = ? WHERE email = ? AND id = ?',
+                [JSON.stringify(data), check.email, id]);
+            return res.send('success');
+        }
+    } catch(err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
 function rcdb_query(qstr, qarg) {
     return new Promise(function(resolve, reject) {
         con.query(qstr, qarg, function (err, result, fields) {
@@ -321,6 +355,7 @@ function rcdb_query(qstr, qarg) {
         });
     });
 }
+
 exports.db_query = async function(qstr, qarg) {
     return rcdb_query(qstr, qarg);
 }

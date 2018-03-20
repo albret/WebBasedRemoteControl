@@ -76,7 +76,7 @@ module.exports = function(app) {
         return rcdb.logout(req, res);
     });
     
-    app.post('/api/change_password', function(req, res) {//TODO need testing
+    app.post('/api/change_password', function(req, res) {
         var oldpass = req.body.oldPassword;
         var newpass = req.body.newPassword;
         return rcdb.change_password(oldpass, newpass, req, res);
@@ -93,11 +93,21 @@ module.exports = function(app) {
         return rcdb.reset_password(token, password, req, res); 
     });
     
-    app.post('/api/delete_account', function(req, res) {//TODO need testing
+    app.post('/api/delete_account', function(req, res) {
         var user = req.body.username;
         var email = req.body.email;
         var pass = req.body.password;
         return rcdb.delete_account(username, email, password, req, res);
+    });
+
+    app.get('/api/get_layout', function(req, res) {
+        return rcdb.get_layout(req, res);
+    });
+    
+    app.post('/api/save_layout', function(req, res) {
+        var layout_data = req.body.layout_data;
+        var layout_id = req.body.layout_id;
+        return rcdb.save_layout(layout_data, layout_id, req, res);
     });
     
     app.post('/api/wss_connect', function(req, res) {
