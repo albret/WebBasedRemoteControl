@@ -48,6 +48,8 @@ module.exports = function(app) {
     /////////////////////////////////////API Routes//////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////
     
+    /////////////////////////////////User Account Routes/////////////////////////////////
+
     app.get('/api/user_exist/:user', function(req, res) {
         var username = req.params.user;
         return dbres = rcdb.user_exist(username, res);
@@ -100,7 +102,9 @@ module.exports = function(app) {
         return rcdb.delete_account(username, email, password, req, res);
     });
 
-    app.get('/api/get_layout', function(req, res) {
+    /////////////////////////////////Layout Editor routes////////////////////////////////
+
+    app.get('/api/get_layout', function(req, res) {//TODO add /:layout_id and fix logic
         return rcdb.get_layout(req, res);
     });
     
@@ -109,6 +113,45 @@ module.exports = function(app) {
         var layout_id = req.body.layout_id;
         return rcdb.save_layout(layout_data, layout_id, req, res);
     });
+
+    ///////////////////////////////////Community routes//////////////////////////////////
+    //TODO normalize the database, its disgusting
+    app.post('/api/publish_layout', function(req, res) {//TODO note: one post per layout
+        var title = req.body.title;
+        var layout_id = req.body.layout_id;
+        var text = req.body.text;
+        return rcdb.publish_layout(title, layout_id, text, req, res);
+    });
+
+    app.post('/api/unpublish_layout', function(req, res) {//TODO note: set inactive
+        var layout_id = req.body.layout_id;
+        return rcdb.unpublish_layout(layout_id, req, res);
+    });
+
+    app.post('/api/post_vote/', function(req, res) {//TODO note: var vote determine up or down vote
+        var vote = req.body.vote;
+        var layout_id = req.body.layout_id;
+        return rcdb.post_vote(layout_id, vote, req, res); 
+    });
+
+    app.post('/api/claim_layout', function(req, res) {//TODO note: save a duplicate not reference
+        var layout_id = req.body.layout_id;
+        return rcdb.save_layout(layout_id, req, res);
+    });
+
+    app.post('/api/post_comment', function(req, res) {//TODO
+        var layout_id = req.body.layout_id;
+        var text = req.body.text;
+        return rcdb.post_comment(layout_id, text, req, res);
+    });
+
+    app.post('/api/comment_vote', function(req, res) {//TODO
+        var comment_id = req.body.comment_id;
+        var vote = req.body.vote;
+        return rcdb.comment_vote(comment_id, vote, req, res);
+    });
+
+    ////////////////////////////////Desktop Client routes////////////////////////////////
     
     app.post('/api/wss_connect', function(req, res) {
         var key = req.body.connectionKey;
@@ -124,6 +167,8 @@ module.exports = function(app) {
         var command = req.body.command;
         return rcdb.send_command(command, req, res);
     });
+
+    ///////////////////////////////////////Testing///////////////////////////////////////
 
     app.get('/amiloggedin', function(req, res) {
         rcdb.check_login(req, res);

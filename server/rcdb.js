@@ -108,7 +108,7 @@ exports.check_login = async function(req, res) {
             return res.send("you are logged in");
         else
             return res.send("you are not logged in");
-    } catch(err) {
+    } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
 }
@@ -124,7 +124,7 @@ exports.logout = async function(req, res) {
             await rcdb_query("DELETE FROM sessions WHERE email = ? AND token = ?",
                 [check.email, check.token]);
         return res.send("logged out");
-    } catch(err) {
+    } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
 }
@@ -186,7 +186,7 @@ exports.forgot_password = async function(email, req, res) {
             return res.status(500).send("Email not associated with an account");
 
         var randomStr = cs355.randomBytes(32).toString('hex');
-        var endTime = new Date(Date.now() + 900000).getTime();
+        var endTime = Date.now() + 900000;
         var result = await rcdb_query("INSERT INTO resetPassword (email, token, expire) values (?, ?, ?)",
             [email, randomStr, endTime]);
 
@@ -225,7 +225,7 @@ exports.get_user_data = async function(req, res) {
         if (!check.auth)
             return res.status(500).send("not logged in");
         return check.email;
-    } catch(err) {
+    } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
 }
@@ -240,18 +240,18 @@ exports.wss_connect = async function(key, req, res) {
         if (checkKey.length == 0)
             return res.status(500).send("Internal server error: connection key not found");
 
-        var currTime = (new Date((Date.now()))).getTime();
+        var currTime = Date.now();
         if (checkKey[0].email != 'unused' && currTime < checkKey[0].expire_time)
             return res.status(500).send("Internal server error: bad connection key");
         var removeConnectionKey = await rcdb_query(
             'UPDATE wsSessions SET email = ? WHERE email = ?',
             ["unused", check.email]);
-        var expTime = (new Date((Date.now() + 43200000))).getTime();
+        var expTime = Date.now() + 43200000;
         var addConnectionKey = await rcdb_query(
             'UPDATE wsSessions SET email = ?, expire = ? WHERE connection_key = ?', 
             [check.email, currTime, key]);
         return res.send("success");
-    } catch(err) {
+    } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
 }
@@ -268,7 +268,7 @@ exports.send_command = async function(command, req, res) {
         if (response)
             return res.send("success");
         return res.status(500).send("Connection has already been closed");
-    } catch(err) {
+    } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
 }
@@ -286,7 +286,7 @@ exports.close_connection = async function(req, res) {
             ["unused", getKey]);
         var response = await require('./wshandler.js').close_connection(getKey);
         return res.send("success");
-      } catch(err) {
+      } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
 }
@@ -302,11 +302,15 @@ async function is_logged_in(req, res) {
         var email = decrypted.slice(0, decrypted.length - 50);
         var randomStr = decrypted.slice(decrypted.length - 50, decrypted.length);
         try {
-            var check = await rcdb_query("SELECT sessions.expire FROM sessions INNER JOIN users WHERE sessions.email = ? AND sessions.token = ? AND sessions.email = users.email AND users.active = 1", 
+            var check = await rcdb_query('SELECT users.username, sessions.expire FROM sessions INNER JOIN users WHERE sessions.email = ? AND sessions.token = ? AND sessions.email = users.email AND users.active = 1', 
                 [email, randomStr]);
-            var curtime = (new Date(Date.now())).getTime();
-            return resolve({auth: (check.length != 0 && check[0].expire > curtime), email: email, token: randomStr});
-        } catch(err) {
+            var curtime = Date.now();
+            var auth_check = (check.length != 0 && check[0].expire > curtime);
+            return resolve({auth: auth_check, 
+                            email: email, 
+                            token: randomStr,
+                            username: auth_check ? check[0].username : ''});
+        } catch (err) {
             return reject(err);
         }
     });
@@ -321,7 +325,7 @@ exports.get_layout = async function(req, res) {
         if (layouts.length == 0)
             return res.send('no layouts associated with your email');
         return res.json(layouts);
-    } catch(err) {
+    } catch (err) {
         return send_error(err, 500, 'Internal server error');
     }
 }
@@ -340,7 +344,37 @@ exports.save_layout = async function(data, id, req, res) {
                 [JSON.stringify(data), check.email, id]);
             return res.send('success');
         }
-    } catch(err) {
+    } catch (err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
+exports.publish_layout = async function(title, layout_id, text, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        var own_check_promise = rcdb_query('SELECT * FROM layouts WHERE email = ? AND id = ?',
+            [check.email, layout_id]);
+        var find_post_promise = rcdb.query('SELECT * FROM posts WHERE username = ? AND id = ?',
+            [check.username, layout_id]);
+        if ((await own_check_promise).length == 0)
+            return res.status(500).send('cannot find layout from your library');
+        var post = await find_post_promise;
+        if (post.length != 0) {
+            if (!post[0].active) {
+                await rcdb_query('UPDATE posts SET active = 1 WHERE username = ? AND id = ?',
+                    [check.username, layout_id]);
+                return res.send('success'); 
+            } else {
+                return res.status(500).send('active post exists');
+            }
+        }
+        var curtime = Date.now();
+        await rcdb_query('INSERT INTO posts (id, title, username, text, age) values (?, ?, ?, ?, ?)',
+            [layout_id, title, check.username, text, curtime]);
+        return res.send('success');
+    } catch (err) {
         return send_error(err, 500, 'Internal server error');
     }
 }
