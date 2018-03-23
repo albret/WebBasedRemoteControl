@@ -5,8 +5,9 @@ drop table sessions;
 drop table wsSessions;
 drop table resetPassword;
 drop table layouts;
-drop table posts;
 drop table comments;
+drop table post_votes;
+drop table comment_votes;
 
 create table users(
 	id INT NOT NULL AUTO_INCREMENT UNIQUE,
@@ -18,53 +19,67 @@ create table users(
 );
 
 create table sessions(
-    email CHAR(50) NOT NULL,
+    user_id INT NOT NULL UNIQUE,
     token CHAR(128) NOT NULL,
-    expire CHAR(13) NOT NULL
+    expire CHAR(13) NOT NULL,
+    PRIMARY KEY (token),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 create table wsSessions(
-    email CHAR(50) NOT NULL,
+    user_id INT NOT NULL UNIQUE,
     connection_key CHAR(4) NOT NULL,
-    expire CHAR(13) NOT NULL
+    expire CHAR(13) NOT NULL,
+    PRIMARY KEY (connection_key),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 create table resetPassword(
-    email CHAR(50) NOT NULL,
+    user_id INT NOT NULL UNIQUE,
     token CHAR(64) NOT NULL,
-    expire CHAR(13) NOT NULL
+    expire CHAR(13) NOT NULL,
+    PRIMARY KEY (token),
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 create table layouts(
-    email CHAR(50) NOT NULL,
-    data TEXT NOT NULL,
     id INT NOT NULL AUTO_INCREMENT UNIQUE,
-    PRIMARY KEY (id)
-);
-
-create table posts(
-    id INT NOT NULL UNIQUE,
+    user_id INT NOT NULL UNIQUE,
+    data TEXT NOT NULL,
     title CHAR(255),
-    username CHAR(50),
     text TEXT,
     age CHAR(13),
-    upvote INT NOT NULL DEFAULT 1,
-    downvote INT NOT NULL DEFAULT 0,
-    active BOOLEAN NOT NULL DEFAULT 1,
+    active BOOLEAN NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
     FOREIGN KEY (id) REFERENCES layouts(id)
 );
 
 create table comments(
     id INT NOT NULL AUTO_INCREMENT UNIQUE,
-    username CHAR(50),
+    user_id INT NOT NULL UNIQUE,
     text TEXT,
     age CHAR(50),
-    post_id INT,
-    upvote INT NOT NULL DEFAULT 1,
-    downvote INT NOT NULL DEFAULT 0,
+    layout_id INT,
     PRIMARY KEY (id),
-    FOREIGN KEY (post_id) REFERENCES posts(id)
+    FOREIGN KEY (layout_id) REFERENCES layouts(id)
+);
+
+create table post_votes(
+    user_id INT NOT NULL UNIQUE,
+    layout_id INT NOT NULL UNIQUE,
+    vote INT NOT NULL,
+    PRIMARY KEY (user_id, layout_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (layout_id) REFERENCES layouts(id)
+);
+
+create table comment_votes(
+    user_id INT NOT NULL UNIQUE,
+    comment_id INT NOT NULL UNIQUE,
+    vote INT NOT NULL,
+    PRIMARY KEY (user_id, comment_id),
+    FOREIGN KEY (user_id) REFERENCES users(id),
+    FOREIGN KEY (comment_id) REFERENCES comments(id)
 );
 
 show tables;

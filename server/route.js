@@ -115,40 +115,39 @@ module.exports = function(app) {
     });
 
     ///////////////////////////////////Community routes//////////////////////////////////
-    //TODO normalize the database, its disgusting
-    app.post('/api/publish_layout', function(req, res) {//TODO note: one post per layout
+    app.post('/api/publish_layout', function(req, res) {
         var title = req.body.title;
         var layout_id = req.body.layout_id;
         var text = req.body.text;
         return rcdb.publish_layout(title, layout_id, text, req, res);
     });
 
-    app.post('/api/unpublish_layout', function(req, res) {//TODO note: set inactive
+    app.post('/api/unpublish_layout', function(req, res) {
         var layout_id = req.body.layout_id;
         return rcdb.unpublish_layout(layout_id, req, res);
     });
 
-    app.post('/api/post_vote/', function(req, res) {//TODO note: var vote determine up or down vote
+    app.post('/api/vote_post/', function(req, res) {
         var vote = req.body.vote;
         var layout_id = req.body.layout_id;
-        return rcdb.post_vote(layout_id, vote, req, res); 
+        return rcdb.vote_post(layout_id, vote, req, res); 
     });
 
-    app.post('/api/claim_layout', function(req, res) {//TODO note: save a duplicate not reference
+    app.post('/api/claim_layout', function(req, res) {
         var layout_id = req.body.layout_id;
         return rcdb.save_layout(layout_id, req, res);
     });
 
-    app.post('/api/post_comment', function(req, res) {//TODO
+    app.post('/api/post_comment', function(req, res) {
         var layout_id = req.body.layout_id;
         var text = req.body.text;
         return rcdb.post_comment(layout_id, text, req, res);
     });
 
-    app.post('/api/comment_vote', function(req, res) {//TODO
+    app.post('/api/vote_comment', function(req, res) {
         var comment_id = req.body.comment_id;
         var vote = req.body.vote;
-        return rcdb.comment_vote(comment_id, vote, req, res);
+        return rcdb.vote_comment(comment_id, vote, req, res);
     });
 
     ////////////////////////////////Desktop Client routes////////////////////////////////

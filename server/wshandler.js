@@ -9,7 +9,7 @@ exports.handle_request = async function(request) {
     connections[connectionKey] = connection;
     console.log(Object.keys(connections));
     var expTime = (new Date((Date.now() + 300000))).getTime();
-    await require('./rcdb').db_query('INSERT INTO wsSessions (email, connection_key, expire) VALUES (?, ?, ?)', ["unused", connectionKey, expTime]);
+    await require('./rcdb').db_query('INSERT INTO wsSessions (user_id, connection_key, expire) VALUES (?, ?, ?)', [-1, connectionKey, expTime]);
     connection.sendUTF('Here is your connection key: ' + connectionKey)
     connection.on('message', function(message) {
         if (message.type === 'utf8') {
@@ -34,7 +34,6 @@ async function get_valid_key() {
         var connectionKey = require('crypto').randomBytes(2).toString('hex');
         var validKey = await require('./rcdb').db_query('SELECT * FROM wsSessions WHERE connection_key = ?', [connectionKey]);
         if (validKey.length == 0) return connectionKey;
-        if (validKey[0].email == "unused") return connectionKey;
         var currTime = (new Date((Date.now()))).getTime();
         if (currTime > validKey[0].expire_time) return connectionKey;
     }
@@ -57,4 +56,5 @@ var connection = connections[connectionKey];
     if (connection) {
         if (connection.connected) connection.close();
     }
+    delete connections[connectionKey];
 }

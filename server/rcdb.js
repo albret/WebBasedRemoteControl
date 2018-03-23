@@ -74,16 +74,16 @@ exports.create_account = async function(user, email, password, req, res) {
 
 exports.login = async function(email, password, keep, req, res) {
     try {
-        var getHashPromise = rcdb_query("SELECT hash FROM users WHERE email = ? AND active = 1", [email]);
+        var getUserPromise = rcdb_query("SELECT hash, id FROM users WHERE email = ? AND active = 1", [email]);
         var checkCookie = await is_logged_in(req, res);
         if (checkCookie.auth)
             return res.send("already logged in");
 
-        var hash = await getHashPromise;
-        if (hash.length == 0)
+        var user = await getUserPromise;
+        if (user.length == 0)
             return res.status(500).send("unable to login");
 
-        var checkHash = await bcrypt_comp(password, hash[0].hash);
+        var checkHash = await bcrypt_comp(password, user[0].hash);
         if (!checkHash)
             return res.status(500).send("unable to login");
 
@@ -91,8 +91,8 @@ exports.login = async function(email, password, keep, req, res) {
         var endTime = end.getTime();
         var randomStr = cs355.randomBytes(25).toString('hex');
         var token = lockit(email + randomStr);
-        var add_session = await rcdb_query("INSERT INTO sessions (email, token, expire) values (?, ?, ?)", 
-            [email, randomStr, endTime]);
+        var add_session = await rcdb_query("INSERT INTO sessions (user_id, token, expire) values (?, ?, ?)", 
+            [user[0].id, randomStr, endTime]);
         res.cookie('auth', token, 
             {httpOnly: true, secure: true, signed: true, expires: end});
         return res.send('success');
@@ -118,11 +118,11 @@ exports.logout = async function(req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.send("not logged in anyways");
-        var dbcheck = await rcdb_query("SELECT * FROM sessions WHERE email = ? AND token = ?",
-            [check.email, check.token]);
+        var dbcheck = await rcdb_query("SELECT * FROM sessions WHERE user_id = ? AND token = ?",
+            [check.user_id, check.token]);
         if (dbcheck.length != 0)
-            await rcdb_query("DELETE FROM sessions WHERE email = ? AND token = ?",
-                [check.email, check.token]);
+            await rcdb_query("DELETE FROM sessions WHERE user_id = ? AND token = ?",
+                [check.user_id, check.token]);
         return res.send("logged out");
     } catch (err) {
         return send_error(err, 500, "Internal server error");
@@ -131,15 +131,14 @@ exports.logout = async function(req, res) {
 
 exports.change_password = async function(oldPass, newPass, req, res) {
     try {
-        var checkCookiePromise = is_logged_in(req, res);
+        var checkPromise = is_logged_in(req, res);
         var newHashPromise = bcrypt_hash(newPass);
 
-        var checkCookie = await checkCookiePromise;
-        if (!checkCookie.auth)
+        var check = await checkPromise;
+        if (!check.auth)
             return res.status(500).send('not logged in');
 
-        var email = checkCookie.email;
-        var oldHash = await rcdb_query("SELECT hash FROM users WHERE email = ? AND active = 1", [email]);
+        var oldHash = await rcdb_query("SELECT hash FROM users WHERE email = ? AND active = 1", [check.email]);
         if (oldHash.length == 0)
             return res.status(500).send('can\'t find user from email');
 
@@ -159,9 +158,11 @@ exports.delete_account = async function(username, email, password, req, res) {
     try {
         var getHashPromise = rcdb_query("SELECT hash FROM users WHERE email = ? AND username = ?", 
             [email, username]);
-        var checkCookie = await is_logged_in(req, res);
-        if (!checkCookie.auth)
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
             return res.status(500).send("not logged in");
+        if (check.email != email)
+            return res.status(500).send("You can't delete someone else's account");
 
         var hash = await getHashPromise;
         if (hash.length == 0)
@@ -170,9 +171,9 @@ exports.delete_account = async function(username, email, password, req, res) {
         var checkHash = await bcrypt_comp(password, hash[0].hash);
         if (!checkHash)
             return res.status(500).send("Wrong password");
-
+        
         var setInactive = await rcdb_query("UPDATE users SET active = 0 WHERE username = ?", [username]);
-        var removeAllSessions = await rcdb_query("DELETE FROM sessions WHERE email = ?", [email]);
+        var removeAllSessions = await rcdb_query("DELETE FROM sessions WHERE user_id = ?", [check.user_id]);
         return res.send("success");
     } catch (err) {
         return send_error(err, 500, "Internal server error");
@@ -206,7 +207,7 @@ exports.forgot_password = async function(email, req, res) {
 
 exports.reset_password = async function(token, password, req, res) {
     try {
-        var tokenValid = await rcdb_query('SELECT email, expire FROM resetPassword WHERE token = ?', [token]);
+        var tokenValid = await rcdb_query('SELECT user_id, expire FROM resetPassword WHERE token = ?', [token]);
         if (tokenValid.length == 0)
             return res.status(500).send("Invalid token");
 
@@ -241,15 +242,15 @@ exports.wss_connect = async function(key, req, res) {
             return res.status(500).send("Internal server error: connection key not found");
 
         var currTime = Date.now();
-        if (checkKey[0].email != 'unused' && currTime < checkKey[0].expire_time)
+        if (checkKey[0].user_id != -1 && currTime < checkKey[0].expire_time)
             return res.status(500).send("Internal server error: bad connection key");
         var removeConnectionKey = await rcdb_query(
-            'UPDATE wsSessions SET email = ? WHERE email = ?',
-            ["unused", check.email]);
+            'UPDATE wsSessions SET user_id = ? WHERE user_id = ?',
+            [-1, check.user_id]);
         var expTime = Date.now() + 43200000;
         var addConnectionKey = await rcdb_query(
-            'UPDATE wsSessions SET email = ?, expire = ? WHERE connection_key = ?', 
-            [check.email, currTime, key]);
+            'UPDATE wsSessions SET user_id = ?, expire = ? WHERE connection_key = ?', 
+            [check.user_id, currTime, key]);
         return res.send("success");
     } catch (err) {
         return send_error(err, 500, "Internal server error");
@@ -261,7 +262,7 @@ exports.send_command = async function(command, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send("not logged in");
-        var getKey = await rcdb_query('SELECT * FROM wsSessions WHERE email = ?', [check.email]);
+        var getKey = await rcdb_query('SELECT * FROM wsSessions WHERE user_id = ?', [check.user_id]);
         if (getKey.length == 0) 
             return res.status(500).send("Internal server error: connection key not found");
         var response = await require('./wshandler.js').send_command(getKey, command);
@@ -278,12 +279,12 @@ exports.close_connection = async function(req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send("not logged in");
-        var getKey = await rcdb_query('SELECT * FROM wsSessions WHERE email = ?', [check.email]);
+        var getKey = await rcdb_query('SELECT * FROM wsSessions WHERE user_id = ?', [check.user_id]);
         if (getKey.length == 0)
             return res.status(500).send("Internal server error: connection key not found");
         var removeConnectionKey = await rcdb_query(
-            'UPDATE wsSessions SET email = ? WHERE connection_key = ?',
-            ["unused", getKey]);
+            'UPDATE wsSessions SET user_id = ? WHERE connection_key = ?',
+            [-1, getKey]);
         var response = await require('./wshandler.js').close_connection(getKey);
         return res.send("success");
       } catch (err) {
@@ -302,14 +303,15 @@ async function is_logged_in(req, res) {
         var email = decrypted.slice(0, decrypted.length - 50);
         var randomStr = decrypted.slice(decrypted.length - 50, decrypted.length);
         try {
-            var check = await rcdb_query('SELECT users.username, sessions.expire FROM sessions INNER JOIN users WHERE sessions.email = ? AND sessions.token = ? AND sessions.email = users.email AND users.active = 1', 
+            var check = await rcdb_query('SELECT users.id, users.username, sessions.expire FROM sessions INNER JOIN users ON sessions.user_id = users.id WHERE users.email = ? AND sessions.token = ? AND users.active = 1', 
                 [email, randomStr]);
             var curtime = Date.now();
             var auth_check = (check.length != 0 && check[0].expire > curtime);
             return resolve({auth: auth_check, 
                             email: email, 
                             token: randomStr,
-                            username: auth_check ? check[0].username : ''});
+                            username: auth_check ? check[0].username : '',
+                            user_id: auth_check ? check[0].id : -1});
         } catch (err) {
             return reject(err);
         }
@@ -321,27 +323,27 @@ exports.get_layout = async function(req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var layouts = await rcdb_query('SELECT id, data FROM layouts WHERE email = ?', [check.email]);
+        var layouts = await rcdb_query('SELECT id, data FROM layouts WHERE user_id = ?', [check.user_id]);
         if (layouts.length == 0)
-            return res.send('no layouts associated with your email');
+            return res.send('no layouts associated with your username');
         return res.json(layouts);
     } catch (err) {
         return send_error(err, 500, 'Internal server error');
     }
 }
 
-exports.save_layout = async function(data, id, req, res) {
+exports.save_layout = async function(data, layout_id, req, res) {
     try {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        if (id == -1) {
-            var result = await rcdb_query('INSERT INTO layouts (email, data) values (?, ?)',
-                [check.email, JSON.stringify(data)]);
+        if (layout_id == -1) {
+            var result = await rcdb_query('INSERT INTO layouts (user_id, data) values (?, ?)',
+                [check.user_id, JSON.stringify(data)]);
             return res.send('success id=' + result.insertId);
         } else {
-            await rcdb_query('UPDATE layouts SET data = ? WHERE email = ? AND id = ?',
-                [JSON.stringify(data), check.email, id]);
+            await rcdb_query('UPDATE layouts SET data = ? WHERE user_id = ? AND id = ?',
+                [JSON.stringify(data), check.id, layout_id]);
             return res.send('success');
         }
     } catch (err) {
@@ -354,25 +356,103 @@ exports.publish_layout = async function(title, layout_id, text, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var own_check_promise = rcdb_query('SELECT * FROM layouts WHERE email = ? AND id = ?',
-            [check.email, layout_id]);
-        var find_post_promise = rcdb.query('SELECT * FROM posts WHERE username = ? AND id = ?',
-            [check.username, layout_id]);
-        if ((await own_check_promise).length == 0)
+        var post = await rwcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ?',
+            [check.user_id, layout_id]);
+        if (post.length == 0)
             return res.status(500).send('cannot find layout from your library');
-        var post = await find_post_promise;
-        if (post.length != 0) {
-            if (!post[0].active) {
-                await rcdb_query('UPDATE posts SET active = 1 WHERE username = ? AND id = ?',
-                    [check.username, layout_id]);
-                return res.send('success'); 
-            } else {
-                return res.status(500).send('active post exists');
-            }
+        if (!post[0].active) {
+            var curtime = Date.now();
+            await rcdb_query('UPDATE layouts SET active = 1, age = ?, title = ?, text = ? WHERE user_id = ? AND id = ?',
+                [curtime, title, text, check.user_id, layout_id]);
+            return res.send('success'); 
+        } else {
+            return res.status(500).send('active post exists');
         }
+        return res.send('success');
+    } catch (err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
+exports.unpublish_layout = async function(layout_id, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        var db_check = await rcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ? AND active = 1',
+            [check.user_id, layout_id]);
+        if (db_check.length == 0)
+            return res.status(500).send('post not found');
+        await rcdb_query('UPDATE layouts SET active = 0 WHERE user_id = ? AND id = ?',
+            [check.user_id, layout_id]);
+        return res.send('success');
+    } catch (err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
+exports.claim_layout = async function(layout_id, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        var layout = await rcdb_query('SELECT * FROM layouts WHERE id = ? AND active = 1',
+            [check.user_id]);
+        if (layout.length == 0)
+            return res.status(500).send('post not found');
+        await rcdb_query('INSERT INTO layouts (user_id, data) values (?, ?)',
+            [check.user_id, layout.data]);
+        return res.send('success');
+    } catch (err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
+exports.post_comment = async function(layout_id, text, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        var layout = await rcdb_query('SELECT * FROM layouts WHERE id = ? AND active = 1',
+            [layout_id]);
+        if (layout.length == 0)
+            return res.status(500).send('post not found');
         var curtime = Date.now();
-        await rcdb_query('INSERT INTO posts (id, title, username, text, age) values (?, ?, ?, ?, ?)',
-            [layout_id, title, check.username, text, curtime]);
+        await rcdb_query('INSERT INTO comments (user_id, text, age, layout_id) values (?, ?, ?, ?)',
+            [check.user_id, text, curtime, layout_id]);
+        return res.send('success');
+    } catch (err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
+exports.vote_post = async function(layout_id, vote, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        var layout = await rcdb_query('SELECT * FROM layouts WHERE id = ? AND active = 1',
+            [layout_id]);
+        if (layout.length == 0)
+            return res.status(500).send('post not found');
+        await rcdb_query('INSERT INTO post_votes (user_id, layout_id, vote) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vote = ?', [check.user_id, layout_id, vote, vote]);
+        return res.send('success');
+    } catch (err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
+exports.vote_comment = async function(comment_id, vote, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        var post_check = await rcdb_query('SELECT * FROM layouts INNER JOIN comments ON layouts.id = comments.layout_id WHERE comments.id = ? AND layouts.active = 1', [comment_id]);
+        var comment = await rcdb_query('SELECT * FROM comments WHERE id = ?',
+            [comment_id]);
+        if (comment.length == 0)
+            return res.status(500).send('comment not found');
+        await rcdb_query('INSERT INTO comment_votes (user_id, comment_id, vote) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vote = ?', [check.user_id, comment_id, vote, vote]);
         return res.send('success');
     } catch (err) {
         return send_error(err, 500, 'Internal server error');
