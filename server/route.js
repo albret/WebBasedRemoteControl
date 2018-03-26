@@ -108,12 +108,14 @@ module.exports = function(app) {
 
     /////////////////////////////////Layout Editor routes////////////////////////////////
 
+    //TODO /api/get_recent : get x most recent layouts
+
     app.get('/api/get_layout', function(req, res) {//TODO add /:layout_id and fix logic
         return rcdb.get_layout(req, res);
     });
     
     app.post('/api/save_layout', function(req, res) {
-        var elements = req.body.elements;
+        var elements = req.body.elements;//TODO receive multiple arrays
         var layout_data = req.body.layout_data;
         var layout_id = req.body.layout_id;
         return rcdb.save_layout(layout_data, layout_id, req, res);
