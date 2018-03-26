@@ -53,7 +53,7 @@
 
 <div id="delete" class="jumbotron">
   <h1 style="text-align: center;">Delete Account</h1>
-  <h3 style="text-align: center;"> Are you sure?</h3>
+  <h3 style="text-align: center; font-size: 12px;"> Your data will be deleted completely from our database</h3>
   <form>
   <div class="input-group">
     <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
@@ -61,8 +61,8 @@
   </div>
 		</br></br>
     <div class="input-group">
-      <span class="input-group-addon"><i class="glyphicon glyphicon-user"></i></span>
-      <input id="email" type="text" class="form-control" name="email" placeholder="E-mail">
+      <span class="input-group-addon"><i class="glyphicon glyphicon-envelope"></i></span>
+      <input id="email" type="email" class="form-control" name="email" placeholder="Email">
     </div>
   		</br></br>
   <div class="input-group">
@@ -70,7 +70,7 @@
     <input id="password" type="password" class="form-control" name="password" placeholder="Password">
   </div>
 </form>
-<button type="submit" class="btn btn-primary" onClick="delete()" style="margin-top: 2%;">Delete Account</button>
+<button type="submit" class="btn btn-primary" id="deletebtn" style="margin-top: 2%;">Delete Account</button>
 </br>
 </div>
 
@@ -79,25 +79,31 @@
 	$(document).ready(function () {
 		$('.dropdown-toggle').dropdown();
 	});
-
-  function delete() {
-    var username = document.getElementById("username").value;
-    var email = document.getElementById("email").value;
-    var pass = document.getElementById("password").value;
-
-    $.ajax({
-          url:'/api/delete_account', username +'/' + email + '/' + pass,
-          type:'get',
-          processData:false,
-          success: function(response) {
-            alert("Your account is deleted!")
-            window.location.href = "https://applepie.albert.tech/";
-          },
-          error: function(response) {
-            alert("delete_account failed!");
-          }
-      });
-
+    document.getElementById("deletebtn").addEventListener("click", deleteFunc);
+    function deleteFunc() {
+        if(confirm("Are you sure about delete this account?")){
+            var username = document.getElementById("username").value;
+            var email = document.getElementById("email").value;
+            var pass = document.getElementById("password").value;
+            $.ajax({
+                url:'/api/delete_account', 
+                type:'POST',
+                data: {
+                    'email' : email,
+                    'username' : username,
+                    'password' : pass
+                },
+                success: function(response) {
+                    alert("Your account is deleted!");
+                    window.location.href = "https://applepie.albert.tech/";
+                },
+                error: function(response) {
+                    alert("delete_account failed!");
+                }
+            });
+        }else {
+            window.location.href="https://applepie.albert.tech/profile";   
+        }
   }
 
 </script>
