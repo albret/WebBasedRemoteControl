@@ -12,7 +12,7 @@ module.exports = function(app) {
     app.get('/account/:user', function(req, res) {
         // TODO
     });
-    
+
     app.get('/logo', function(req,res) {
         res.sendFile('/home/ec2-user/workspace/WebBasedRemoteControl/views/logo.png');
     });
@@ -35,6 +35,10 @@ module.exports = function(app) {
         res.render('profile');
     });
     
+    app.get('/create', function(req, res) {
+        res.render('createPage');
+    });
+
     app.get('/resetPassword', function(req, res) {
         console.log("Hey, u're in route.js /resetPassword res.render()");
         res.render('resetPassword');
@@ -96,9 +100,9 @@ module.exports = function(app) {
     });
     
     app.post('/api/delete_account', function(req, res) {
-        var user = req.body.username;
+        var username = req.body.username;
         var email = req.body.email;
-        var pass = req.body.password;
+        var password  = req.body.password;
         return rcdb.delete_account(username, email, password, req, res);
     });
 
@@ -109,6 +113,7 @@ module.exports = function(app) {
     });
     
     app.post('/api/save_layout', function(req, res) {
+        var elements = req.body.elements;
         var layout_data = req.body.layout_data;
         var layout_id = req.body.layout_id;
         return rcdb.save_layout(layout_data, layout_id, req, res);
