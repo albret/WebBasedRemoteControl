@@ -3,9 +3,5 @@ use rcdb
 insert into users 
 (username, email, hash)
 values
-('kevin', 'kzhang', '\$2a\$10\$l/UFLqKfp04ZIMPM7GfdteFD8x6iGPscE.b.epuVmIrJDE6CEXnhu');
-
-insert into sessions
-(email, token, expire)
-values
-('kzhang', 'e703fd0583fb6ccda140abb60569d3028ea40e108199e7df1be47502e538500f', '1521635534208');
+('kevin', 'kzhang', '\$2a\$10\$l/UFLqKfp04ZIMPM7GfdteFD8x6iGPscE.b.epuVmIrJDE6CEXnhu'),
+('test001', 'test001@example.com', '\$2a\$10\$ozcWyrK.SfUi1fRWtZReHuCCHPIDmEBLiG9YWdTRNJCe1/l0McEkm');

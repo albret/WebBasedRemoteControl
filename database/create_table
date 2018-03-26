@@ -1,13 +1,13 @@
 use rcdb
 
-drop table users;
+drop table post_votes;
+drop table comment_votes;
+drop table comments;
+drop table layouts;
 drop table sessions;
 drop table wsSessions;
 drop table resetPassword;
-drop table layouts;
-drop table comments;
-drop table post_votes;
-drop table comment_votes;
+drop table users;
 
 create table users(
 	id INT NOT NULL AUTO_INCREMENT UNIQUE,
@@ -51,7 +51,7 @@ create table layouts(
     age CHAR(13),
     active BOOLEAN NOT NULL DEFAULT 0,
     PRIMARY KEY (id),
-    FOREIGN KEY (id) REFERENCES layouts(id)
+    FOREIGN KEY (user_id) REFERENCES users(id)
 );
 
 create table comments(
