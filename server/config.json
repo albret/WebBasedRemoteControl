@@ -1,0 +1,25 @@
+{
+    "server": {
+        "http": 8000,
+        "https": 8001
+    },
+    "mysql": {
+        "host": "rcdb.cmyiasvjovvb.us-east-2.rds.amazonaws.com",
+        "port": "3306",
+        "user": "ScrumMasterEddie",
+        "password": "Pumpnewsdarklamb&",
+        "database": "rcdb"
+    },
+    "cookie": {
+        "signkey": "164nnw029xsa715mjk",
+        "encryptkey": "phs826xbw856jqb815"
+    },
+    "email": {
+        "user": "admin@rcweb.xyz",
+        "pass": "Pumpnewsdarklamb&"
+    },
+    "https": {
+        "key": "/home/ec2-user/ssl-keys/privkey.pem",
+        "cert": "/home/ec2-user/ssl-keys/cert.pem"
+    }
+}
