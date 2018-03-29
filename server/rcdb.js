@@ -66,7 +66,6 @@ exports.create_account = async function(user, email, password, req, res) {
         var hash = await hashPromise;
         var result = await rcdb_query("INSERT INTO users (username, email, hash) values (?, ?, ?)", 
             [user, email, hash]);
-        return res.send('success');
     } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
@@ -318,32 +317,73 @@ async function is_logged_in(req, res) {
     });
 }
 
-exports.get_layout = async function(req, res) {
+exports.get_layout = async function(id, req, res) {
     try {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var layouts = await rcdb_query('SELECT id, data FROM layouts WHERE user_id = ?', [check.user_id]);
-        if (layouts.length == 0)
-            return res.send('no layouts associated with your username');
-        return res.json(layouts);
+        if (typeof id == 'undefined') {
+            var data = await rcdb_query('SELECT id, data, layout_name, layout_description FROM layouts WHERE user_id = ?', [check.user_id]);
+            if (data.length == 0)
+                return res.send('no layouts associated with your username');
+            var resp_data = [];
+            for (var x = 0; x < data.length; x++) {
+                var cleanstr = data[x].data.slice(1, -1).replace(/\\/g, '');
+                var jdata = JSON.parse(cleanstr);
+                var layout = {};
+                layout['elements'] = jdata[0];
+                layout['types'] = jdata[1];
+                layout['names'] = jdata[2];
+                layout['elementCmds'] = jdata[3];
+                layout['heights'] = jdata[4];
+                layout['widths'] = jdata[5];
+                layout['mtops'] = jdata[6];
+                layout['mlefts'] = jdata[7];
+                layout['name'] = data[x].layout_name;
+                layout['description'] = data[x].layout_description;
+                layout['id'] = data[x].id;
+                resp_data.push(layout);
+            }
+            return res.json(resp_data);
+        } else {
+            var data = await rcdb_query('SELECT data, layout_name, layout_description FROM layouts WHERE user_id = ? AND id = ?',
+                [check.user_id, id]);
+            if (data.length == 0)
+                return res.send('layout not found from your library');
+            var cleanstr = data[0].data.slice(1, -1).replace(/\\/g, '');
+            var jdata = JSON.parse(cleanstr);
+            var layout = {};
+            layout['elements'] = jdata[0];
+            layout['types'] = jdata[1];
+            layout['names'] = jdata[2];
+            layout['elementCmds'] = jdata[3];
+            layout['heights'] = jdata[4];
+            layout['widths'] = jdata[5];
+            layout['mtops'] = jdata[6];
+            layout['mlefts'] = jdata[7];
+            layout['name'] = data[0].layout_name;
+            layout['description'] = data[0].layout_description;
+            return res.json(layout);
+        }
     } catch (err) {
         return send_error(err, 500, 'Internal server error');
     }
 }
 
-exports.save_layout = async function(data, layout_id, req, res) {
+exports.save_layout = async function(data, layout_id, name, description, req, res) {
     try {
+        //console.log("\n>>\n"+data);
+        //console.log(layout_id);
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
         if (layout_id == -1) {
-            var result = await rcdb_query('INSERT INTO layouts (user_id, data) values (?, ?)',
-                [check.user_id, JSON.stringify(data)]);
+            var result = await rcdb_query('INSERT INTO layouts (user_id, data, layout_name, layout_description) values (?, ?, ?, ?)',
+                [check.user_id, JSON.stringify(data), name, description]);
             return res.send('success id=' + result.insertId);
         } else {
-            await rcdb_query('UPDATE layouts SET data = ? WHERE user_id = ? AND id = ?',
-                [JSON.stringify(data), check.id, layout_id]);
+            await rcdb_query('UPDATE layouts SET data = ?, name = ?, description = ? WHERE user_id = ? AND id = ?',
+                [JSON.stringify(data), name, description, check.id, layout_id]);
             return res.send('success');
         }
     } catch (err) {

@@ -18,7 +18,7 @@
 
 <body>
 
-<nav class="navbar navbar-default">
+<nav class="navbar navbar-inverse navbar-static-top">
   <div class="container-fluid">
     <!-- Brand and toggle get grouped for better mobile display -->
     <div class="navbar-header">
@@ -57,7 +57,7 @@
       </form>
       <ul class="nav navbar-nav navbar-right">
         <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account <span class="caret"></span></a>
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= email %> <span class="caret"></span></a>
           <ul class="dropdown-menu">
             <li><a href="#">View Profile</a></li>
             <li><a href="#">Account Settings</a></li>
@@ -176,7 +176,8 @@
 	</div>
 	<div id="currentdesign">
 			<h1 style="margin-top: -17%; text-align:center;"> Current Design </h1>
-				<button style="position: absolute; margin-top: 125%; margin-left: 39%;" type="button" class="btn" onClick="saveDesign()">Save Design</button>
+				<input type="text" style="margin-top: 125%; position: absolute;" class="form-control" id="layoutname" placeholder="Enter Layout Name (20 Characters or less)">
+                <button style="position: absolute; margin-top: 135%; margin-left: 39%;" type="button" class="btn" onClick="saveDesign()">Save Design</button>
 
 	</div>	
 	
@@ -218,13 +219,6 @@
 		document.getElementById('cmdb3').style.visibility="visible";
 		document.getElementById('cmdS').style.visibility="hidden";
 		document.getElementById('filepath').style.visibility="hidden";
-		
-	} else if (document.getElementById('file').checked == true) {
-		document.getElementById('filepath').style.visibility="visible";
-		document.getElementById('cmdb1').style.visibility="hidden";
-		document.getElementById('cmdb2').style.visibility="hidden";
-		document.getElementById('cmdb3').style.visibility="hidden";
-		document.getElementById('cmdS').style.visibility="hidden";
 	}
 	}
 	
@@ -246,7 +240,7 @@
 		if (name == "") {
 			alert("A name must be chosen!");
 			return;
-		}
+        }
 		var cmds = new Array();
 		var type = "";
 		if (document.getElementById('slider').checked == true) {
@@ -423,7 +417,15 @@
 	function saveDesign() {
 		//Make ajax call with data sent
 		//we have all the data saved in arrays, just pass the arrays as data to routes
-		$.ajax({
+		if (document.getElementById('layoutname').value == "") {
+            alert("Name cannot be empty!");
+            return;
+        } else if (document.getElementById('layoutname').value.length > 20) {
+            alert("Name cannot be longer than 20 character!");
+            return;
+        }
+        var layoutname = document.getElementById('layoutname').value;
+        $.ajax({
 			url: '/api/save_layout',
 			type: 'POST',
 			data: {
@@ -434,13 +436,15 @@
 				heights: heights,
 				widths: widths,
 				mtops: mtops,
-				mlefts: mlefts
+				mlefts: mlefts,
+                name: layoutname,
+                layout_id: -1
 			},
 			success: function(res) {
-				
+            
 			}
 		});	
 	}
 </script>
 </body>
-</html>
+<html>

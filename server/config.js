@@ -1,5 +1,5 @@
 var fs = require('fs');
-var parsed = JSON.parse(fs.readFileSync('./config.json'));
+var parsed = JSON.parse(fs.readFileSync('../config.json'));
 if (process.env.NODE_ENV == 'test') {
     parsed.mysql.database = "Testing";
     parsed.server.http = 8800;
