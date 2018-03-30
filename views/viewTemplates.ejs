@@ -75,9 +75,9 @@
   </nav>
 
 
-<div id="recentmade" class = "row">
+<div class = "contaner-fluid">
    <h2 id="recTitle"> Most Recently Templates </h2>
-   <div class = "col-sm-6 col-md-3">
+   <div class = "col-6">
       <h3 id="mediaplayer"> Media Player </h3>
       <div class="grid-stack">
           <div class="grid-stack-item"
@@ -122,7 +122,6 @@
           </div>
       </div>
 
-      <button>
       <button class="loadbtn" id="loadbtn">Load</button><button class='desktop-only' id='editbtn'>Edit</button>
      </div>
    </div>
@@ -151,7 +150,7 @@
       $('#cmd-shutdown').click(send_command('ShutDown'));
     });
 
-    $('#editbtn').click(function{
+    $('#editbtn').click(function(){
       grid.enable();
     });
 
