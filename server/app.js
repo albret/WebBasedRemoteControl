@@ -35,12 +35,12 @@ var default404 = function(req, res, next) {
 }
 
 // Start http server for redirect
-http.listen(8000);
+http.listen(conf.server.http);
 http.use(trafficLog);
 http.use(redirectHttps);
 
 // Start server with options
-var secureServer = https.createServer(httpsOption, app).listen(8001);
+var secureServer = https.createServer(httpsOption, app).listen(conf.server.https);
 app.set('views', __dirname + '/../views');
 app.set('view engine', 'ejs');
 app.use(express.json());
@@ -63,10 +63,13 @@ app.use(express.static(__dirname + '/../static'));
 app.use(default404);
 require('./rcdb').connect();
 
-
 // Shut down routine
-process.on('SIGINT', function() {
+var shutdown_routine = function() {
     require('./rcdb').disconnect();
     console.log('Server shutdown');
     process.exit();
-});
+};
+process.on('SIGINT', shutdown_routine);
+
+exports.server = app;
+exports.shutdown = shutdown_routine;

@@ -1,0 +1,450 @@
+<html>
+<head>
+ <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+	<link rel="stylesheet" type="text/css" href="./style.css">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+	<style>
+  #feedback { font-size: 1.4em; }
+  #selectable .ui-selecting { background: #FECA40; }
+  #selectable .ui-selected { background: #F39814; color: white; }
+  #selectable { list-style-type: none; margin: 0; padding: 0; width: 450px; }
+  #selectable li { margin: 3px; padding: 1px; float: left; width: 80px; height: 70px; font-size: 4em; text-align: center; }
+  </style>
+</head>
+
+<body>
+
+<nav class="navbar navbar-inverse navbar-static-top">
+  <div class="container-fluid">
+    <!-- Brand and toggle get grouped for better mobile display -->
+    <div class="navbar-header">
+      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+        <span class="sr-only">Toggle navigation</span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+        <span class="icon-bar"></span>
+      </button>
+      <a class="navbar-brand" href="#">Web Based Remote Control | Create Template </a>
+    </div>
+
+    <!-- Collect the nav links, forms, and other content for toggling -->
+    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+      <ul class="nav navbar-nav">
+        <li class="active"><a href="#">Create <span class="sr-only">(current)</span></a></li>
+        <li><a href="#">View</a></li>
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">Action</a></li>
+            <li><a href="#">Another action</a></li>
+            <li><a href="#">Something else here</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">One more separated link</a></li>
+          </ul>
+        </li>
+      </ul>
+      <form class="navbar-form navbar-left">
+        <div class="form-group">
+          <input type="text" class="form-control" placeholder="Search Templates">
+        </div>
+        <button type="submit" class="btn btn-default">Search</button>
+      </form>
+      <ul class="nav navbar-nav navbar-right">
+        <li class="dropdown">
+          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= email %> <span class="caret"></span></a>
+          <ul class="dropdown-menu">
+            <li><a href="#">View Profile</a></li>
+            <li><a href="#">Account Settings</a></li>
+            <li><a href="#">Sign Out</a></li>
+            <li role="separator" class="divider"></li>
+            <li><a href="#">Separated link</a></li>
+          </ul>
+        </li>
+      </ul>
+    </div><!-- /.navbar-collapse -->
+  </div><!-- /.container-fluid -->
+</nav>
+
+<div style="width: 30%; margin-left: 5%; margin-top: 5%;">
+  <ol id="selectable" style="margin-left:5%; margin-top: 5%; width: 30%;">
+  <li id="u1" value=1 class="ui-widget-content">1</li>
+  <li id="u2" value=2 class="ui-widget-content">2</li>
+  <li id="u3" value=3 class="ui-widget-content">3</li>
+  <li id="u4" value=4 class="ui-widget-content">4</li>
+  <li id="u5" value=5 class="ui-widget-content">5</li>
+  <li id="u6" value=6 class="ui-widget-content">6</li>
+  <li id="u7" value=7 class="ui-widget-content">7</li>
+  <li id="u8" value=8 class="ui-widget-content">8</li>
+  <li id="u9" value=9 class="ui-widget-content">9</li>
+  <li id="u10" value=10 class="ui-widget-content">10</li>
+  <li id="u11" value=11 class="ui-widget-content">11</li>
+  <li id="u12" value=12 class="ui-widget-content">12</li>
+  <li id="u13" value=13 class="ui-widget-content">13</li>
+  <li id="u14" value=14 class="ui-widget-content">14</li>
+  <li id="u15" value=15 class="ui-widget-content">15</li>
+  <li id="u16" value=16 class="ui-widget-content">16</li>
+  <li id="u17" value=17 class="ui-widget-content">17</li>
+  <li id="u18" value=18 class="ui-widget-content">18</li>
+  <li id="u19" value=19 class="ui-widget-content">19</li>
+  <li id="u20" value=20 class="ui-widget-content">20</li>
+  <li id="u21" value=21 class="ui-widget-content">21</li>
+  <li id="u22" value=22 class="ui-widget-content">22</li>
+  <li id="u23" value=23 class="ui-widget-content">23</li>
+  <li id="u24" value=24 class="ui-widget-content">24</li>
+  <li id="u25" value=25 class="ui-widget-content">25</li>
+  <li id="u26" value=26 class="ui-widget-content">26</li>
+  <li id="u27" value=27 class="ui-widget-content">27</li>
+  <li id="u28" value=28 class="ui-widget-content">28</li>
+  <li id="u29" value=29 class="ui-widget-content">29</li>
+  <li id="u30" value=30 class="ui-widget-content">30</li>
+  <li id="u31" value=31 class="ui-widget-content">31</li>
+  <li id="u32" value=32 class="ui-widget-content">32</li>
+  <li id="u33" value=33 class="ui-widget-content">33</li>
+  <li id="u34" value=34 class="ui-widget-content">34</li>
+  <li id="u35" value=35 class="ui-widget-content">35</li>
+  <li id="u36" value=36 class="ui-widget-content">36</li>
+
+	</ol>
+	
+	<div style="width: 70%; margin-left: 8%; margin-top: 3%;">
+				<div id="inputstyle" style="float:left; margin-left: 3%;"> 
+		 <div class="radio">
+  			<label><input onClick="change()" type="radio" checked="checked" name="optradio" id="button">Button</label>
+		  </div>
+		  <div class="radio">
+  			<label><input onClick="change()" type="radio" name="optradio" id="slider">Slider</label>
+		  </div>
+	  <div class="radio">
+  	  	<label><input onClick="change()" type="radio" name="optradio" id="file">File</label>
+	  </div>
+		  </div>
+							
+		 
+			 <div class="form-group" style="margin-left: 30%;">
+  <label for="usr">Input name:</label>
+  <input type="text" class="form-control" id="btnName">
+			</div>
+
+		
+		<select class="form-control form-control-lg b" id="cmdb1">
+			<option value="" disabled selected>1</option>
+			<option>Large select</option>
+		</select>
+		<select class="form-control form-control-lg b" id="cmdb2">
+			<option value="" disabled selected>2</option>
+			<option>Large select</option>
+		</select>
+		<select class="form-control form-control-lg b" id="cmdb3">
+			<option value="" disabled selected>3</option>
+			<option>Large select</option>
+		</select>
+		
+		<select class="form-control form-control-lg b" id="cmdS">
+  <option>Large select</option>
+</select>
+		<button style="margin-top: 3%; margin-left: 35.5%;" type="button" class="btn" onClick="addElement()">Add Element</button>
+		
+		<input type="text" class="form-control" id="filepath">
+	  	 
+				</div>
+	
+	</div>
+	<div id="currentcmds">
+			<h1 style="margin-top: -17%; text-align:center;"> Current Commands </h1>
+		<table id="table">
+			<tr>
+				<td> Name </td>
+				<td> Type </td>
+				<td> Blocks </td>
+				<td> Commands </td>
+			</tr>
+		</table>
+		<div class="form-group" style="diplay: inline-block; width: 30%; margin-top: 5%; margin-left:15%;">
+  <label>Elements:</label>
+  <select class="form-control" id="ElementList">
+	  
+  </select>
+</div>
+		<button style="margin-left: 55%; margin-top:-9.5%;" type="button" class="btn" onClick="deleteElement()">Delete Element</button>
+
+	</div>
+	<div id="currentdesign">
+			<h1 style="margin-top: -17%; text-align:center;"> Current Design </h1>
+				<input type="text" style="margin-top: 125%; position: absolute;" class="form-control" id="layoutname" placeholder="Enter Layout Name (20 Characters or less)">
+                <button style="position: absolute; margin-top: 135%; margin-left: 39%;" type="button" class="btn" onClick="saveDesign()">Save Design</button>
+
+	</div>	
+	
+
+<script>
+	var usedblocks = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; //0(no)
+	var elements = new Array();
+	var names = new Array();
+	var types = new Array();
+	var elementCmds = new Array();
+	var heights = new Array();
+	var widths = new Array();
+	var mtops = new Array();
+	var mlefts = new Array();
+	
+	$(document).ready(function () {
+		$('.dropdown-toggle').dropdown();
+	});
+	
+	$( function() {
+    $( "#selectable" ).selectable();
+  } );
+	
+	//$('#selectable').bind("mousedown", function (e) {
+    //       e.metaKey = false;
+ 	//}).selectable();
+	
+	function change() {
+	if (document.getElementById('slider').checked == true) {
+		document.getElementById('cmdb1').style.visibility="hidden";
+		document.getElementById('cmdb2').style.visibility="hidden";
+		document.getElementById('cmdb3').style.visibility="hidden";
+		document.getElementById('cmdS').style.visibility="visible";
+		document.getElementById('filepath').style.visibility="hidden";
+
+	} else if (document.getElementById('button').checked == true) {
+		document.getElementById('cmdb1').style.visibility="visible";
+		document.getElementById('cmdb2').style.visibility="visible";
+		document.getElementById('cmdb3').style.visibility="visible";
+		document.getElementById('cmdS').style.visibility="hidden";
+		document.getElementById('filepath').style.visibility="hidden";
+	}
+	}
+	
+    function addElement() {
+		var blocks = document.getElementsByClassName("ui-widget-content ui-selectee ui-selected");
+		var result = new Array();
+		if (blocks.length == 0) {
+			alert("At least one block must be chosen!");
+			return;
+		}
+		for (var i = 0; i < blocks.length; ++i) {
+				if (usedblocks[blocks[i].value-1] == 1) {
+					alert("Block " + blocks[i].value + " aleady being used!");
+					return;
+				}
+				result.push(blocks[i].value);
+		}
+		var name = document.getElementById("btnName").value;
+		if (name == "") {
+			alert("A name must be chosen!");
+			return;
+        }
+		var cmds = new Array();
+		var type = "";
+		if (document.getElementById('slider').checked == true) {
+			type = "Slider";
+			if (document.getElementById("cmdS").value == "") {
+				alert("Command must be chosen!");
+				return;
+			} else {
+				cmds.push(document.getElementById("cmdS").value);
+			}
+		} else if (document.getElementById('button').checked == true) {
+			type = "Button";
+			var cmd1 = document.getElementById("cmdb1").value;
+			var cmd2 = document.getElementById("cmdb2").value;
+			var cmd3 = document.getElementById("cmdb3").value;
+			
+			if (cmd1 == "") {
+				alert("Input 1 cannot be left blank!");
+				return;
+			} else if (cmd1 == "" && cmd2 == "" && cmd3 == "") {
+				alert("At least one input must be chosen");	
+				return;
+			} else {
+				cmds.push(cmd1);
+				cmds.push(cmd2);
+				cmds.push(cmd3);
+			}
+
+		} else if (document.getElementById('file').checked == true) {
+			type = "File";
+			var path = document.getElementById("filepath").value;
+			if (path == "") {
+				alert("File path must be given!");	
+				return;
+			} else {
+				cmds.push(path);
+			}
+			
+		}
+		
+		//If everything is good
+		for (var i = 0; i < blocks.length; ++i) {
+			usedblocks[blocks[i].value-1] = 1;	
+		}
+		elements.push(result);
+		names.push(name);
+		types.push(type);
+		elementCmds.push(cmds);
+		
+		//console.log(types.toString());
+		
+		document.getElementById("cmdb1").value = "";
+		document.getElementById("cmdb2").value = "";
+		document.getElementById("cmdb3").value = "";
+		document.getElementById("filepath").value = "";
+		document.getElementById("cmdS").value = "";
+		document.getElementById("btnName").value = "";
+		
+		var table = document.getElementById("table");
+		var row = table.insertRow(table.rows.length);
+		var cell1 = row.insertCell(0);
+		var cell2 = row.insertCell(1);
+		var cell3 = row.insertCell(2);
+		var cell4 = row.insertCell(3);
+		
+		var c1 = document.createTextNode(name);
+		var c2 = document.createTextNode(type);
+		var c3 = document.createTextNode(result.toString());
+		
+		var cmdString = "";
+		for (var i = 0; i < cmds.length; i++) {
+			if (i > 0 && i < cmds.length && cmds[i] != "") {
+				cmdString += "+";	
+			}
+			cmdString += cmds[i];	
+		}
+		var c4 = document.createTextNode(cmdString);
+		
+		cell1.appendChild(c1);
+		cell2.appendChild(c2);
+		cell3.appendChild(c3);
+		cell4.appendChild(c4);
+		
+		var list = document.getElementById("ElementList");
+		var option = document.createElement("option");
+		option.text = name;
+		list.add(option);
+		
+		displayElement(elements.length - 1);
+		
+	}
+	
+	function deleteElement() {
+			var element = document.getElementById("ElementList");
+			var index = element.selectedIndex;
+			var name = names[index];
+			if (index == -1) {
+				alert("No elements have been added!");
+				return;
+			}
+			var confirmation = confirm("Are you sure you want to delete element: " + names[index] + "?");
+			if (confirmation == 0) {
+				return;	
+			} else {
+				for (var i = 0; i < elements[index].length; i++) {
+					console.log(usedblocks[elements[index][i] - 1]);
+					usedblocks[elements[index][i] - 1] = 0;	
+				}
+				elements.splice(index, 1);
+				names.splice(index, 1);
+				types.splice(index, 1);
+				elementCmds.splice(index, 1);
+				heights.splice(index, 1);
+				widths.splice(index, 1);
+				mtops.splice(index, 1);
+				mlefts.splice(index, 1);
+				document.getElementById("table").deleteRow(index + 1);
+				element.remove(index);
+				document.getElementById(name + index).remove();
+			}		 	
+	}
+	
+	function displayElement(index) {
+		var hMulti = Math.floor((elements[index][elements[index].length - 1] / 6)) - Math.floor((elements[index][0] / 6));
+		if (Math.floor(elements[index][elements[index].length - 1] / 6) == 5) {
+			//hMulti++;	
+		}
+		if (elements[index][elements[index].length - 1] - elements[index][0] <= 5) {
+			hMulti = 0;	
+		}
+		//if (elements[index][0] % 6 == 0) {
+		//	hMulti--;	
+		//}
+		var wMulti = 1;
+		for (var i = 1; i < elements[index].length; i++) {
+				if (elements[index][i] - elements[index][0] <= 5) {
+						wMulti = (elements[index][i] - 1) - (elements[index][0] - 1) + 1;
+				}
+		}
+		var isend = 0;
+		if (elements[index][0] % 6 == 0) {
+				isend = 1;
+		}
+		var height = 16.66 * (hMulti + 1);
+		if (height == 0) {
+			height = 16.66;	
+		}
+		var width = 16.66 * wMulti;
+		var mtop = 16.66 * (Math.floor(elements[index][0] / 6) - isend) + 7.4; //7.4% gets into box
+		var mleft = 16.66 * (Math.floor(elements[index][0] % 6) - 1);
+		if (elements[index][0] % 6 == 0) {
+			mleft = 16.66 * 5;	
+		}
+		var addthis = "";
+		if (types[index] == "Button") {
+			addthis = "<button id=\"" + (names[index] + index) + "\"style=\"position: absolute; margin-top: " + mtop + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"button\" class=\"btn\"\"> " + names[index] + "</button>";
+		} else if (types[index] == "Slider") {
+			//addthis = "<input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"myRange\">"
+			if (height > width) {
+				addthis = "<input id=\"" + (names[index] + index) + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; margin-top: " + mtop + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+			} else {
+				addthis = "<input id=\"" + (names[index] + index) + "\"style=\"position: absolute; margin-top: " + mtop + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+
+			}
+		}
+		heights.push(height);
+		widths.push(width);
+		mtops.push(mtop);
+		mlefts.push(mleft);
+		
+		document.getElementById("currentdesign").innerHTML += addthis;
+	}
+	
+	function saveDesign() {
+		//Make ajax call with data sent
+		//we have all the data saved in arrays, just pass the arrays as data to routes
+		if (document.getElementById('layoutname').value == "") {
+            alert("Name cannot be empty!");
+            return;
+        } else if (document.getElementById('layoutname').value.length > 20) {
+            alert("Name cannot be longer than 20 character!");
+            return;
+        }
+        var layoutname = document.getElementById('layoutname').value;
+        $.ajax({
+			url: '/api/save_layout',
+			type: 'POST',
+			data: {
+				elements: elements,
+				types: types,
+				names: names,
+				elementCmds: elementCmds,
+				heights: heights,
+				widths: widths,
+				mtops: mtops,
+				mlefts: mlefts,
+                name: layoutname,
+                layout_id: -1
+			},
+			success: function(res) {
+            
+			}
+		});	
+	}
+</script>
+</body>
+<html>

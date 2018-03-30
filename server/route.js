@@ -25,27 +25,40 @@ module.exports = function(app) {
         res.render('AccountCreate');
     });
    
-    app.get('/home', async function(req, res) {
+    app.get('/displayLayout', async function(req, res) {
+        var email = await rcdb.get_user_data(req,res);
+        res.render('displayLayout', {email: email});
+    });    
+
+    app.get('/displayLayout/:layout_id', async function(req, res) {
+        var layout_id = req.params.layout_id;
         var email = await rcdb.get_user_data(req, res);
-        console.log(email);
-        res.render('home', {email: email});//TODO put variables in home.ejs to receive data
-    });
- 
-    app.get('/profile', function(req, res) {
-        res.render('profile');
-    });
-    
-    app.get('/create', function(req, res) {
-        res.render('createPage');
+        res.render('displayLayout', {email: email, layout_id: layout_id});
     });
 
-    app.get('/resetPassword', function(req, res) {
-        console.log("Hey, u're in route.js /resetPassword res.render()");
-        res.render('resetPassword');
+    app.get('/home', async function(req, res) {
+        var email = await rcdb.get_user_data(req, res);
+        res.render('home', {email: email});
+    });
+ 
+    app.get('/profile', async function(req, res) {
+        var email = await rcdb.get_user_data(req, res);
+        res.render('profile', {email: email});
     });
     
-    app.get('/deleteAccount', function(req, res) {
-      res.render('deleteAccount');
+    app.get('/resetPassword', async function(req, res) {
+        var email = await rcdb.get_user_data(req, res);
+        res.render('resetPassword', {email: email});
+    });
+    
+    app.get('/deleteAccount', async function(req, res) {
+        var email = await rcdb.get_user_data(req, res);
+        res.render('deleteAccount', {email: email});
+    });
+
+    app.get('/createPage', async function(req,res) {
+        var email = await rcdb.get_user_data(req, res);
+        res.render('createPage', {email: email});
     });
 
     /////////////////////////////////////////////////////////////////////////////////////
@@ -64,11 +77,12 @@ module.exports = function(app) {
         return dbres = rcdb.email_exist(email, res);
     });
 
-    app.post('/api/create_account', function(req, res) {
+    app.post('/api/create_account', async function(req, res) {
         var email = req.body.email;
         var user = req.body.username;
         var pass = req.body.password;
-        return rcdb.create_account(user, email, pass, req, res);
+        await rcdb.create_account(user, email, pass, req, res);
+        return rcdb.login(email, pass, false, req, res);
     });
     
     app.post('/api/login', function(req, res) {
@@ -108,15 +122,32 @@ module.exports = function(app) {
 
     /////////////////////////////////Layout Editor routes////////////////////////////////
 
-    app.get('/api/get_layout', function(req, res) {//TODO add /:layout_id and fix logic
-        return rcdb.get_layout(req, res);
+    //TODO /api/get_recent : get x most recent layouts
+
+    app.get('/api/get_layout/:layout_id?', function(req, res) {
+        console.log("getting!");
+        var layout_id = req.params.layout_id;
+        return rcdb.get_layout(layout_id, req, res);
     });
     
     app.post('/api/save_layout', function(req, res) {
-        var elements = req.body.elements;
-        var layout_data = req.body.layout_data;
+        //console.log(req.body);
+        var data = [];
+        data[0] = req.body.elements;
+        data[1] = req.body.types;
+        data[2] = req.body.names;
+        data[3] = req.body.elementCmds;
+        data[4] = req.body.heights;
+        data[5] = req.body.widths;
+        data[6] = req.body.mtops;
+        data[7] = req.body.mlefts;
+        //console.log(data);
+        var layout_data = JSON.stringify(data);
+        //console.log(layout_data);
         var layout_id = req.body.layout_id;
-        return rcdb.save_layout(layout_data, layout_id, req, res);
+        var name = req.body.name;
+        var description = req.body.description;
+        return rcdb.save_layout(layout_data, layout_id, name, description, req, res);
     });
 
     ///////////////////////////////////Community routes//////////////////////////////////
