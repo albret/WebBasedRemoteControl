@@ -1,0 +1,194 @@
+<html>
+<head>
+  <meta charset="utf-8">
+  <meta http-equiv="X-UA-Compatible" content="IE=edge">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="./style.css">
+  <link rel="stylesheet" href="gridstack.css"/>
+  <link rel="stylesheet" href="jquery-ui.css"/>
+
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.1/jquery.min.js"></script>
+  <script type="text/javascript" src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+  <script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/lodash.js/3.5.0/lodash.min.js"></script>
+
+  <script src="gridstack.js"></script>
+  <script src="gridstack.jQueryUI.js"></script>
+</head>
+
+<body>
+
+
+  <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Web Based Remote Control | Create Template </a>
+      </div>
+
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="#">Create <span class="sr-only">(current)</span></a></li>
+          <li><a href="#">View</a></li>
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">Action</a></li>
+              <li><a href="#">Another action</a></li>
+              <li><a href="#">Something else here</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">One more separated link</a></li>
+            </ul>
+          </li>
+        </ul>
+        <form class="navbar-form navbar-left">
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search Templates">
+          </div>
+          <button type="submit" class="btn btn-default">Search</button>
+        </form>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= email %> <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="/profile">View Profile</a></li>
+              <li><a href="#">Account Settings</a></li>
+              <li><a href="/api/logout">Sign Out</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
+
+
+<div id="recentmade" class = "row">
+   <h2 id="recTitle"> Most Recently Templates </h2>
+   <div class = "col-sm-6 col-md-3">
+      <h3 id="mediaplayer"> Media Player </h3>
+      <div class="grid-stack">
+          <div class="grid-stack-item"
+              data-gs-x="0" data-gs-y="0"
+              data-gs-width="1" data-gs-height="1" data-gs-min-width="1">
+                  <div class="grid-stack-item-content" id = 'gsi-media-play'><img src='media_play.png' alt="" class='imgBtn'></image></div>
+          </div>
+          <div class="grid-stack-item"
+              data-gs-x="0" data-gs-y="1"
+              data-gs-width="1" data-gs-height="1" data-gs-min-width="1">
+                  <div class="grid-stack-item-content"id='gsi-media-pause'><img src='media_pause.png' alt="" class='imgBtn'></image></div>
+          </div>
+          <div class="grid-stack-item"
+              data-gs-x="0" data-gs-y="2"
+              data-gs-width="1" data-gs-height="1">
+                  <div class="grid-stack-item-content"id='gsi-media-stop'><img src='media_stop.png' alt="" class='imgBtn'></image></div>
+          </div>
+          <div class="grid-stack-item"
+              data-gs-x="1" data-gs-y="0"
+              data-gs-width="1" data-gs-height="2">
+                  <div class="grid-stack-item-content"><p>Vol: <span id="vol-amount"></span><div id='slider-1'></div></div>
+          </div>
+          <div class="grid-stack-item"
+              data-gs-x="2" data-gs-y="0"
+              data-gs-width="1" data-gs-height="1">
+                  <div class="grid-stack-item-content"><button class='command' id='cmd-sleep'>OS-Sleep</button></image></div>
+          </div>
+          <div class="grid-stack-item"
+              data-gs-x="2" data-gs-y="1"
+              data-gs-width="1" data-gs-height="1">
+                  <div class="grid-stack-item-content"><button class='command' id='cmd-shutdown'>OS-Shutdown</button></image></div>
+          </div>
+          <div class="grid-stack-item"
+              data-gs-x="1" data-gs-y="2"
+              data-gs-width="1" data-gs-height="1">
+                  <div class="grid-stack-item-content"><img src='backward.png' alt="" class='imgBtn'></img></div>
+          </div>
+          <div class="grid-stack-item"
+              data-gs-x="2" data-gs-y="2"
+              data-gs-width="1" data-gs-height="1">
+                  <div class="grid-stack-item-content"><img src='fast_forward.png' alt="" class='imgBtn'></img></div>
+          </div>
+      </div>
+
+      <button>
+      <button class="loadbtn" id="loadbtn">Load</button><button class='desktop-only' id='editbtn'>Edit</button>
+     </div>
+   </div>
+
+<script>
+	$(document).ready(function () {
+		$('.dropdown-toggle').dropdown();
+
+    var options = {
+      width: 4,
+      minWidth: 200,
+      cellHeight: 85,
+      height: 4,
+      float: true,
+      acceptWidgets: '.grid-stack-item'
+    };
+    $('.grid-stack').gridstack(options);
+    var grid = $('.grid-stack').data('gridstack');
+    grid.disable();
+
+    $('#loadbtn').click(function() {
+      $('#gsi-media-play').click(send_command('Media_Play'));
+      $('#gsi-media-pause').click(send_command('Media_Pause'));
+      $('#gsi-media-stop').click(send_command('Media_Stop'))
+      $('#cmd-sleep').click(send_command('Sleep'));
+      $('#cmd-shutdown').click(send_command('ShutDown'));
+    });
+
+    $('#editbtn').click(function{
+      grid.enable();
+    });
+
+    $("#slider-1").slider({
+        max: 100,
+        min: 0,
+        range: "min",
+        value: 25,
+        orientation: "vertical",
+        slide: function( event, ui ) {
+        $( "#vol-amount" ).val( ui.value );
+      }
+    });
+
+    $("#vol-amount").html( $( "#slider-1" ).slider( "value" ));
+
+
+	});
+
+  function send_command(cmdMsg){
+    console.log("sending command: "+ cmd-msg);
+    $.ajax({
+      url: '/api/send_command',
+      type: 'POST',
+      data: cmdMsg,
+      success: function(response) {
+        console.log("send_command() success!");
+      },
+      error: function(response) {
+        console.log("send_command() failed!");
+      }
+    });
+  }
+
+
+</script>
+
+</body>
+
+</html>
