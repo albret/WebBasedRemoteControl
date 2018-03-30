@@ -24,6 +24,10 @@ module.exports = function(app) {
     app.get('/createAccount', function(req, res) {
         res.render('AccountCreate');
     });
+    
+    app.get('/viewTemplates', function(req, res) {
+        res.render('viewTemplates');
+    }
    
     app.get('/displayLayout', async function(req, res) {
         var email = await rcdb.get_user_data(req,res);
