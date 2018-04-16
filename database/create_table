@@ -27,11 +27,10 @@ create table sessions(
 );
 
 create table wsSessions(
-    user_id INT NOT NULL UNIQUE,
+    user_id INT NOT NULL,
     connection_key CHAR(4) NOT NULL,
     expire CHAR(13) NOT NULL,
-    PRIMARY KEY (connection_key),
-    FOREIGN KEY (user_id) REFERENCES users(id)
+    PRIMARY KEY (connection_key)
 );
 
 create table resetPassword(

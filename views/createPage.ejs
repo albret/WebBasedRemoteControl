@@ -170,10 +170,14 @@
   <select class="form-control" id="ElementList">
 	  
   </select>
+		<button style="margin-left: 130%; margin-top:-22.7%;" type="button" class="btn" onClick="deleteElement()">Delete Element</button>
+    
+    <div class="form-group" style="margin-top:5%;">
+        <label for="description"> Description </label>
+        <textarea style="height:150%; max-height:150%; width: 200%; max-width:200%;"class="form-control" rows=2 id="description"></textarea>
+    </div>
 </div>
-		<button style="margin-left: 55%; margin-top:-9.5%;" type="button" class="btn" onClick="deleteElement()">Delete Element</button>
-
-	</div>
+</div>
 	<div id="currentdesign">
 			<h1 style="margin-top: -17%; text-align:center;"> Current Design </h1>
 				<input type="text" style="margin-top: 125%; position: absolute;" class="form-control" id="layoutname" placeholder="Enter Layout Name (20 Characters or less)">
@@ -365,8 +369,8 @@
 	
 	function displayElement(index) {
 		var hMulti = Math.floor((elements[index][elements[index].length - 1] / 6)) - Math.floor((elements[index][0] / 6));
-		if (Math.floor(elements[index][elements[index].length - 1] / 6) == 5) {
-			//hMulti++;	
+		if (Math.floor(elements[index][elements[index].length - 1] / 6) == 6) {
+            //hMulti--;
 		}
 		if (elements[index][elements[index].length - 1] - elements[index][0] <= 5) {
 			hMulti = 0;	
@@ -381,28 +385,53 @@
 				}
 		}
 		var isend = 0;
+        var isendlast = 0;
 		if (elements[index][0] % 6 == 0) {
 				isend = 1;
 		}
+        
+        if (elements[index][elements[index].length - 1] == 36) {
+            isendlast = 1;
+        }
 		var height = 16.66 * (hMulti + 1);
 		if (height == 0) {
 			height = 16.66;	
 		}
 		var width = 16.66 * wMulti;
-		var mtop = 16.66 * (Math.floor(elements[index][0] / 6) - isend) + 7.4; //7.4% gets into box
-		var mleft = 16.66 * (Math.floor(elements[index][0] % 6) - 1);
+		var mtopviz = 16.66 * (Math.floor(elements[index][0] / 6) - isend) + 7.4; //7.4% gets into box
+	
+        var mtop = mtopviz - 7.4;
+        if (elements[index][0] / 6 > 1) {
+            //mtop += 16.66 + (0.5 * height) + 4.5;
+            alert(isend);
+            mtop = 16.66 * (Math.floor(elements[index][0] / 6) - isend) + 8.33;
+            //mtop = 16.66 *(hMulti + 1) + 8.33;
+        }
+        if (mtop > 0) {
+            mtopviz += (Math.floor(elements[index][0] / 6)) - (hMulti + 1 - isend);
+            if (elements[index][0] / 6 >= 5) {
+                mtopviz += 3;
+            } 
+      
+        }
+        var mleft = 16.66 * (Math.floor(elements[index][0] % 6) - 1);
 		if (elements[index][0] % 6 == 0) {
 			mleft = 16.66 * 5;	
 		}
+        console.log("htmulti: " + hMulti); 
+        console.log("height: " + height);
+        console.log("width: " + width);
+        console.log("mtopviz: " + mtopviz);
+        console.log("mtop: " + mtop);
 		var addthis = "";
 		if (types[index] == "Button") {
-			addthis = "<button id=\"" + (names[index] + index) + "\"style=\"position: absolute; margin-top: " + mtop + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"button\" class=\"btn\"\"> " + names[index] + "</button>";
+			addthis = "<button id=\"" + (names[index] + index) + "\"style=\"position: absolute; margin-top: " + mtopviz + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"button\" class=\"btn\"\"> " + names[index] + "</button>";
 		} else if (types[index] == "Slider") {
 			//addthis = "<input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"myRange\">"
 			if (height > width) {
-				addthis = "<input id=\"" + (names[index] + index) + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; margin-top: " + mtop + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+				addthis = "<input id=\"" + (names[index] + index) + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; margin-top: " + mtopviz + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
 			} else {
-				addthis = "<input id=\"" + (names[index] + index) + "\"style=\"position: absolute; margin-top: " + mtop + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+				addthis = "<input id=\"" + (names[index] + index) + "\"style=\"position: absolute; margin-top: " + mtopviz + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
 
 			}
 		}
@@ -425,6 +454,19 @@
             return;
         }
         var layoutname = document.getElementById('layoutname').value;
+        var description = document.getElementById('description').value;
+        
+        if (description == "") {
+            alert("Description cannot be empty!");
+            return;
+        } else if (description.length < 20) {
+            alert("Description must be more than 20 characters!");
+            return;
+        } else if (description.length > 200) {
+            alert("Description must be less than 200 characters!");
+            return;
+        }
+
         $.ajax({
 			url: '/api/save_layout',
 			type: 'POST',
@@ -438,7 +480,8 @@
 				mtops: mtops,
 				mlefts: mlefts,
                 name: layoutname,
-                layout_id: -1
+                layout_id: -1,
+                description: description
 			},
 			success: function(res) {
             

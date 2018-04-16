@@ -250,7 +250,8 @@ exports.wss_connect = async function(key, req, res) {
         var addConnectionKey = await rcdb_query(
             'UPDATE wsSessions SET user_id = ?, expire = ? WHERE connection_key = ?', 
             [check.user_id, currTime, key]);
-        return res.send("success");
+        var response = await require('./wshandler.js').send_command(key, check.username);
+        if (response) return res.send("success");
     } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
@@ -264,7 +265,8 @@ exports.send_command = async function(command, req, res) {
         var getKey = await rcdb_query('SELECT * FROM wsSessions WHERE user_id = ?', [check.user_id]);
         if (getKey.length == 0) 
             return res.status(500).send("Internal server error: connection key not found");
-        var response = await require('./wshandler.js').send_command(getKey, command);
+        console.log(command);
+        var response = await require('./wshandler.js').send_command(getKey[0].connection_key, command);
         if (response)
             return res.send("success");
         return res.status(500).send("Connection has already been closed");
@@ -283,8 +285,8 @@ exports.close_connection = async function(req, res) {
             return res.status(500).send("Internal server error: connection key not found");
         var removeConnectionKey = await rcdb_query(
             'UPDATE wsSessions SET user_id = ? WHERE connection_key = ?',
-            [-1, getKey]);
-        var response = await require('./wshandler.js').close_connection(getKey);
+            [-1, getKey[0].connection_key]);
+        var response = await require('./wshandler.js').close_connection(getKey[0].connection_key);
         return res.send("success");
       } catch (err) {
         return send_error(err, 500, "Internal server error");

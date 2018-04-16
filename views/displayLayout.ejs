@@ -2,7 +2,7 @@
 <head>
  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
 	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
 	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
 	<link rel="stylesheet" type="text/css" href="./style.css">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -15,12 +15,9 @@
   #selectable li { margin: 3px; padding: 1px; float: left; width: 80px; height: 70px; font-size: 4em; text-align: center; }
   </style>
 </head>
-
 <body>
-
 <nav class="navbar navbar-inverse navbar-static-top">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
+  <div class="container-fluid" style="height: 0%";>
     <div class="navbar-header">
       <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
         <span class="sr-only">Toggle navigation</span>
@@ -30,8 +27,6 @@
       </button>
       <a class="navbar-brand" href="#">Web Based Remote Control | Create Template </a>
     </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
     <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
       <ul class="nav navbar-nav">
         <li class="active"><a href="#">Create <span class="sr-only">(current)</span></a></li>
@@ -67,9 +62,13 @@
           </ul>
         </li>
       </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
+    </div>`
+  </div>
 </nav>
+
+
+<div id="templatecontainer" style=" position: relative; width: 100%; height: 100%; margin-top:-4.5%;">
+</div>
 
 <script>
 	var elements = new Array();
@@ -80,26 +79,62 @@
 	var widths = new Array();
 	var mtops = new Array();
 	var mlefts = new Array();
-	
-	function displayElements() {
-		$.ajax({
-			url: '/loadPage',
+
+    var urlS = window.location.href;
+    var url = new URL(urlS);
+    var id = url.searchParams.get("layout_id");    
+
+	$.ajax({
+			url: '/api/get_layout/'+id,
 			type: 'GET',
-			
-			success: function(data)
-				displayData(data);	
+			dataType: 'json',
+			success: function(data) {
+                elements = data.elements;
+                names = data.names;
+                types = data.types;
+                elementCmds = data.elementCmds;
+                heights = data.heights;
+                widths = data.widths;
+                mtops = data.mtops;
+                mlefts = data.mlefts;
+                displayData(data);	
 			},
 			error: function(res) {
-				
+				console.log("error!");
 			}
-		})
-	}
+		});
 	
-	function displayData(var data) {
+	function displayData(data) {
 		//retrieve arrays from data
-		
+        var eid;
+        for (eid = 0; eid < heights.length; eid++) {
+            var addthis = "";
+            var blockstobottom = Math.trunc(parseInt(elements[eid][elements[eid].length - 1], 10) / 6);
+            if (parseInt(elements[eid][elements[eid].length - 1], 10) % 6 == 0) {
+                blockstobottom--;
+            }
+            console.log(blockstobottom);
+            var bottom = (5 - blockstobottom) * 16.66;
+           
+            if (types[eid] == "Button") {
+                addthis = "<button id=\"" + (names[eid] + eid) + "\"style=\"position: absolute; bottom: " + bottom + "; margin-left: " + mlefts[eid] + "%; height: " + (parseInt(heights[eid], 10))/*heights[eid]*/ + "%; width: " + widths[eid] + "%;\" type=\"button\" class=\"btn\"\"> " + names[eid] + "</button>";
+            } else if (types[eid] == "Slider") {
+            //addthis = "<input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"myRange\">"
+            if (parseInt(heights[eid], 10) > parseInt(widths[eid], 10)) {
+                addthis = "<input id=\"" + (names[eid] + eid) + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + (parseInt(heights[eid], 10)) /*heights[eid]*/ + "%; width: " + widths[eid] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+            } else {
+                addthis = "<input id=\"" + (names[eid] + eid) + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + heights[eid] + "%; width: " + widths[eid] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+
+            }
+            console.log(addthis);
+        }
+            
+            document.getElementById("templatecontainer").innerHTML += addthis;
+
+        }
+        
 	}
-lslslslsl
+
 
     
 </script>

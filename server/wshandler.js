@@ -43,18 +43,21 @@ exports.send_command = async function(connectionKey, command) {
     console.log(connectionKey);
     if (!connection) {
         return 0;
+        console.log("Wasn't found");
     }
     if (connection.connected) {
         connection.sendUTF(command);
         return 1;
     }
+    console.log("already closed");
     return 0;
 }
 exports.close_connection = async function(connectionKey) {
-var connection = connections[connectionKey];
-    console.log(connectionKey);
+    var connection = connections[connectionKey];
+    console.log(">>>>" + connectionKey);
     if (connection) {
         if (connection.connected) connection.close();
     }
     delete connections[connectionKey];
+    console.log(Object.keys(connections));
 }

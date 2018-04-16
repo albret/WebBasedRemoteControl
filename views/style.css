@@ -29,7 +29,7 @@ ol, li {
 	}
     #profileinfo p {
         margin-left: 1%;
-    }
+i    }
 
     #recentmade h2 {
         padding-left: 5%;
@@ -37,6 +37,9 @@ ol, li {
     
     #userfav h2 {
         padding-left: 5%;
+    }
+    .navbar-brand {
+        font-size: 90%;
     }
     
 }
