@@ -129,7 +129,6 @@ module.exports = function(app) {
     //TODO /api/get_recent : get x most recent layouts
 
     app.get('/api/get_layout/:layout_id?', function(req, res) {
-        console.log("getting!");
         var layout_id = req.params.layout_id;
         return rcdb.get_layout(layout_id, req, res);
     });
@@ -145,9 +144,7 @@ module.exports = function(app) {
         data[5] = req.body.widths;
         data[6] = req.body.mtops;
         data[7] = req.body.mlefts;
-        //console.log(data);
         var layout_data = JSON.stringify(data);
-        //console.log(layout_data);
         var layout_id = req.body.layout_id;
         var name = req.body.name;
         var description = req.body.description;
@@ -188,6 +185,16 @@ module.exports = function(app) {
         var comment_id = req.body.comment_id;
         var vote = req.body.vote;
         return rcdb.vote_comment(comment_id, vote, req, res);
+    });
+
+    app.get('/api/get_posts/vote/:last_id?', function(req, res) {
+        var last_id = req.params.last_id;
+        return rcdb.get_posts(0, last_id, req, res);
+    });
+
+    app.get('/api/get_community_posts/date/:last_id?', function(req, res) {
+        var last_id = req.params.last_id;
+        return rcdb.get_posts(i, last_id, req, res);
     });
 
     ////////////////////////////////Desktop Client routes////////////////////////////////

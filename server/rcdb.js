@@ -241,7 +241,8 @@ exports.wss_connect = async function(key, req, res) {
             return res.status(500).send("Internal server error: connection key not found");
 
         var currTime = Date.now();
-        if (checkKey[0].user_id != -1 && currTime < checkKey[0].expire_time)
+        console.log(currTime + "|" + checkKey[0].expire);
+        if (checkKey[0].user_id != -1 && currTime < checkKey[0].expire)
             return res.status(500).send("Internal server error: bad connection key");
         var removeConnectionKey = await rcdb_query(
             'UPDATE wsSessions SET user_id = ? WHERE user_id = ?',
@@ -249,7 +250,7 @@ exports.wss_connect = async function(key, req, res) {
         var expTime = Date.now() + 43200000;
         var addConnectionKey = await rcdb_query(
             'UPDATE wsSessions SET user_id = ?, expire = ? WHERE connection_key = ?', 
-            [check.user_id, currTime, key]);
+            [check.user_id, expTime, key]);
         var response = await require('./wshandler.js').send_command(key, check.username);
         if (response) return res.send("success");
     } catch (err) {
@@ -374,8 +375,6 @@ exports.get_layout = async function(id, req, res) {
 
 exports.save_layout = async function(data, layout_id, name, description, req, res) {
     try {
-        //console.log("\n>>\n"+data);
-        //console.log(layout_id);
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
@@ -402,10 +401,12 @@ exports.publish_layout = async function(title, layout_id, text, req, res) {
             [check.user_id, layout_id]);
         if (post.length == 0)
             return res.status(500).send('cannot find layout from your library');
-        if (!post[0].active) {
+        if (!post[0].p_active) {
             var curtime = Date.now();
-            await rcdb_query('UPDATE layouts SET active = 1, age = ?, title = ?, text = ? WHERE user_id = ? AND id = ?',
+            await rcdb_query('UPDATE layouts SET p_active = 1, age = ?, title = ?, text = ? WHERE user_id = ? AND id = ?',
                 [curtime, title, text, check.user_id, layout_id]);
+            await rcdb_query('INSERT INTO post_votes (user_id, layout_id, vote) values (?, ?, 1)', 
+                [check.user_id, layout_id]);
             return res.send('success'); 
         } else {
             return res.status(500).send('active post exists');
@@ -421,11 +422,11 @@ exports.unpublish_layout = async function(layout_id, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var db_check = await rcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ? AND active = 1',
+        var db_check = await rcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ? AND p_active = 1',
             [check.user_id, layout_id]);
         if (db_check.length == 0)
             return res.status(500).send('post not found');
-        await rcdb_query('UPDATE layouts SET active = 0 WHERE user_id = ? AND id = ?',
+        await rcdb_query('UPDATE layouts SET p_active = 0 WHERE user_id = ? AND id = ?',
             [check.user_id, layout_id]);
         return res.send('success');
     } catch (err) {
@@ -438,7 +439,7 @@ exports.claim_layout = async function(layout_id, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var layout = await rcdb_query('SELECT * FROM layouts WHERE id = ? AND active = 1',
+        var layout = await rcdb_query('SELECT * FROM layouts WHERE id = ? AND p_active = 1',
             [check.user_id]);
         if (layout.length == 0)
             return res.status(500).send('post not found');
@@ -455,13 +456,15 @@ exports.post_comment = async function(layout_id, text, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var layout = await rcdb_query('SELECT * FROM layouts WHERE id = ? AND active = 1',
+        var layout = await rcdb_query('SELECT * FROM layouts WHERE id = ? AND p_active = 1',
             [layout_id]);
         if (layout.length == 0)
             return res.status(500).send('post not found');
         var curtime = Date.now();
         await rcdb_query('INSERT INTO comments (user_id, text, age, layout_id) values (?, ?, ?, ?)',
             [check.user_id, text, curtime, layout_id]);
+        await rcdb_query('INSERT INTO comment_votes (user_id, comment_id, vote) SELECT ?, id, 1 FROM comments WHERE user_id = ? AND curtime = ?',
+            [check.user_id, check.user_id, curtime]);
         return res.send('success');
     } catch (err) {
         return send_error(err, 500, 'Internal server error');
@@ -473,11 +476,14 @@ exports.vote_post = async function(layout_id, vote, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var layout = await rcdb_query('SELECT * FROM layouts WHERE id = ? AND active = 1',
+        var layout = await rcdb_query('SELECT * FROM layouts WHERE id = ? AND p_active = 1',
             [layout_id]);
         if (layout.length == 0)
             return res.status(500).send('post not found');
+        var original_vote = await rcdb_query('SELECT vote, count(vote) AS cnt FROM post_votes WHERE user_id = ? AND layout_id = ?', [check.user_id, layout_id]);
+        var diff = vote - (original_vote[0].cnt == 0 ? 0 : vote);
         await rcdb_query('INSERT INTO post_votes (user_id, layout_id, vote) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vote = ?', [check.user_id, layout_id, vote, vote]);
+        await rcdb_query('UPDATE layouts SET score = score + ? WHERE layout_id = ?', [diff, layout_id]);
         return res.send('success');
     } catch (err) {
         return send_error(err, 500, 'Internal server error');
@@ -489,15 +495,64 @@ exports.vote_comment = async function(comment_id, vote, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var post_check = await rcdb_query('SELECT * FROM layouts INNER JOIN comments ON layouts.id = comments.layout_id WHERE comments.id = ? AND layouts.active = 1', [comment_id]);
-        var comment = await rcdb_query('SELECT * FROM comments WHERE id = ?',
-            [comment_id]);
+        var post_check = await rcdb_query('SELECT * FROM layouts INNER JOIN comments ON layouts.id = comments.layout_id WHERE comments.id = ? AND layouts.p_active = 1', [comment_id]);
+        var comment = await rcdb_query('SELECT * FROM comments WHERE id = ?', [comment_id]);
         if (comment.length == 0)
             return res.status(500).send('comment not found');
+        var original_vote = await rcdb_query('SELECT vote, count(vote) AS cnt FROM comment_votes WHERE user_id = ? AND comment_id = ?', [check.user_id, comment_id]);
+        var diff = vote - (original_vote[0].cnt == 0 ? 0 : vote);
         await rcdb_query('INSERT INTO comment_votes (user_id, comment_id, vote) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vote = ?', [check.user_id, comment_id, vote, vote]);
+        await rcdb_query('UPDATE comments SET score = score + ? WHERE comment_id = ?', [diff, comment_id]);
         return res.send('success');
     } catch (err) {
         return send_error(err, 500, 'Internal server error');
+    }
+}
+
+exports.get_posts = async function(sort, last_id, req, res) {
+    try {//sort: 0 = vote, 1 = date
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        if (sort == 0) {//by vote
+            if (typeof last_id == 'undefined') {
+                var results = await rcdb_query(
+                    `SELECT U.name, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
+                    ORDER BY L.score DESC, L.age DESC
+                    LIMIT 10`, []);
+                return res.json(results);
+            } else {
+                var results = await rcdb_query(
+                    `SELECT U.name, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
+                    WHERE L.score <= (SELECT score FROM layouts WHERE id = ? limit 1)
+                        AND L.age <= (SELECT age FROM layouts WHERE id = ? limit 1)
+                    ORDER BY L.score DESC, L.age DESC
+                    LIMIT 10`, [last_id, last_id]);
+                return res.json(results);
+            }
+        } else if (sort == 1) {//by date
+            if (typeof last_id == 'undefined') {
+                var results = await rcdb_query(
+                    `SELECT U.name, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
+                    ORDER BY L.age DESC
+                    LIMIT 10`, []);
+                return res.json(results);
+            } else {
+                var results = await rcdb_query(
+                    `SELECT U.name, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
+                    WHERE L.age <= (SELECT age FROM layouts WHERE id = ? limit 1)
+                    ORDER BY L.age DESC
+                    LIMIT 10`, [last_id]);
+                return res.json(results);
+            }
+        }
+        return res.status(500).send('unknown error'); 
+    } catch (err) {
+        return send_err(err, 500, 'Internal server error');
     }
 }
 

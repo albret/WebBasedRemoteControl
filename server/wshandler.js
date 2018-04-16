@@ -3,6 +3,7 @@ var connections = {};
 //Websocket receive connection requests
 exports.handle_request = async function(request) {
     var connection = request.accept('random-number', request.origin);
+    console.log('Connection: ' + connection);
     console.log('Connection from origin ' + connection.remoteAddress);
     console.log((new Date()) + ' Connection accepted.');
     var connectionKey = await get_valid_key();
