@@ -126,8 +126,6 @@ module.exports = function(app) {
 
     /////////////////////////////////Layout Editor routes////////////////////////////////
 
-    //TODO /api/get_recent : get x most recent layouts
-
     app.get('/api/get_layout/:layout_id?', function(req, res) {
         var layout_id = req.params.layout_id;
         return rcdb.get_layout(layout_id, req, res);
@@ -162,6 +160,11 @@ module.exports = function(app) {
     app.post('/api/unpublish_layout', function(req, res) {
         var layout_id = req.body.layout_id;
         return rcdb.unpublish_layout(layout_id, req, res);
+    });
+
+    app.post('/api/delete_layout', function(req, res) {
+        var layout_id = req.body.layout_id;
+        return rcdb.delete_layout(layout_id, req, res);
     });
 
     app.post('/api/vote_post/', function(req, res) {
@@ -211,6 +214,7 @@ module.exports = function(app) {
     
     app.post('/api/send_command', function(req, res) {
         var command = req.body.command;
+        console.log(command);
         return rcdb.send_command(command, req, res);
     });
 

@@ -321,6 +321,9 @@ async function is_logged_in(req, res) {
 }
 
 exports.get_layout = async function(id, req, res) {
+//TODO change this to return any layouts that is owned or public
+//TODO ^^^ so the method can be used to fetch data from other pages.
+//TODO and change the save_layout to only be able to save owned layouts
     try {
         var check = await is_logged_in(req, res);
         if (!check.auth)
@@ -397,7 +400,7 @@ exports.publish_layout = async function(title, layout_id, text, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var post = await rwcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ?',
+        var post = await rcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ?',
             [check.user_id, layout_id]);
         if (post.length == 0)
             return res.status(500).send('cannot find layout from your library');
@@ -427,6 +430,28 @@ exports.unpublish_layout = async function(layout_id, req, res) {
         if (db_check.length == 0)
             return res.status(500).send('post not found');
         await rcdb_query('UPDATE layouts SET p_active = 0 WHERE user_id = ? AND id = ?',
+            [check.user_id, layout_id]);
+        await rcdb_query('DELETE FROM post_votes WHERE user_id = ? AND layout_id = ?',
+            [check.user_id, layout_id]);
+        return res.send('success');
+    } catch (err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
+exports.delete_layout = async function(layout_id, req, res) {
+//TODO change layout table to include tombstone column
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        var db_check = await rcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ? AND p_active = 1',
+            [check.user_id, layout_id]);
+        if (db_check.length == 0)
+            return res.status(500).send('post not found');
+        await rcdb_query('UPDATE layouts SET p_active = 0 WHERE user_id = ? AND id = ?',
+            [check.user_id, layout_id]);
+        await rcdb_query('DELETE FROM post_votes WHERE user_id = ? AND layout_id = ?',
             [check.user_id, layout_id]);
         return res.send('success');
     } catch (err) {
@@ -517,17 +542,19 @@ exports.get_posts = async function(sort, last_id, req, res) {
         if (sort == 0) {//by vote
             if (typeof last_id == 'undefined') {
                 var results = await rcdb_query(
-                    `SELECT U.name, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    `SELECT U.username, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
                     FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
+                    WHERE L.p_active = 1
                     ORDER BY L.score DESC, L.age DESC
                     LIMIT 10`, []);
                 return res.json(results);
             } else {
                 var results = await rcdb_query(
-                    `SELECT U.name, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    `SELECT U.username, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
                     FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
                     WHERE L.score <= (SELECT score FROM layouts WHERE id = ? limit 1)
                         AND L.age <= (SELECT age FROM layouts WHERE id = ? limit 1)
+                        AND L.p_active = 1
                     ORDER BY L.score DESC, L.age DESC
                     LIMIT 10`, [last_id, last_id]);
                 return res.json(results);
@@ -535,16 +562,17 @@ exports.get_posts = async function(sort, last_id, req, res) {
         } else if (sort == 1) {//by date
             if (typeof last_id == 'undefined') {
                 var results = await rcdb_query(
-                    `SELECT U.name, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    `SELECT U.username, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
                     FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
+                    WHERE L.p_active = 1
                     ORDER BY L.age DESC
                     LIMIT 10`, []);
                 return res.json(results);
             } else {
                 var results = await rcdb_query(
-                    `SELECT U.name, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    `SELECT U.username, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
                     FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
-                    WHERE L.age <= (SELECT age FROM layouts WHERE id = ? limit 1)
+                    WHERE L.age <= (SELECT age FROM layouts WHERE id = ? limit 1) AND L.p_active = 1
                     ORDER BY L.age DESC
                     LIMIT 10`, [last_id]);
                 return res.json(results);

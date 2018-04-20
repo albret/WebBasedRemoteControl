@@ -117,11 +117,11 @@
             var bottom = (5 - blockstobottom) * 16.66;
            
             if (types[eid] == "Button") {
-                addthis = "<button id=\"" + (names[eid] + eid) + "\"style=\"position: absolute; bottom: " + bottom + "; margin-left: " + mlefts[eid] + "%; height: " + (parseInt(heights[eid], 10))/*heights[eid]*/ + "%; width: " + widths[eid] + "%;\" type=\"button\" class=\"btn\"\"> " + names[eid] + "</button>";
+                addthis = "<button id=\"" + eid + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + (parseInt(heights[eid], 10))/*heights[eid]*/ + "%; width: " + widths[eid] + "%;\" type=\"button\" class=\"btn\"\"> " + names[eid] + "</button>";
             } else if (types[eid] == "Slider") {
-            //addthis = "<input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"myRange\">"
+            //addthis = "<input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"" + eid + "\">"
             if (parseInt(heights[eid], 10) > parseInt(widths[eid], 10)) {
-                addthis = "<input id=\"" + (names[eid] + eid) + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + (parseInt(heights[eid], 10)) /*heights[eid]*/ + "%; width: " + widths[eid] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+                addthis = "<input id=\"" + eid + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + (parseInt(heights[eid], 10)) /*heights[eid]*/ + "%; width: " + widths[eid] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
             } else {
                 addthis = "<input id=\"" + (names[eid] + eid) + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + heights[eid] + "%; width: " + widths[eid] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
 
@@ -133,8 +133,71 @@
 
         }
         
-	}
+	
+    $("button").click(function(e) {
+            var id = e.target.id;
+            var cmds = elementCmds[id];
+           
+            $.ajax({
+            url: '/api/send_command',
+            type: 'POST',
+            dataType: 'json',
+            data: {
+                command: cmds
+            },
+            success: function(data) {
+                
+            },
+            error: function(res) {
+                console.log("error!");
+            }
+        });
+        
+    $("input").on('slide', function(e) {
+        var id = e.target.id;
+        alert(id);
+    });
+    });
+    }
 
+
+    
+        
+        var valid = 0;
+        while (valid == 0) {
+            var code = prompt("Please enter connection code from desktop application");
+            console.log(code);
+            if (code === null) {
+                //window.location.href = 'https://applepie.albert.tech/home?';
+                $.ajax({
+                    url: '/home',
+                    type: 'GET',
+                    success: function(res) {
+
+                    }
+                });
+            }
+            $.ajax({
+                url: '/api/wss_connect',
+                type: 'POST',
+                dataType: 'json',
+                data: {
+                    connectionKey: code
+                },
+                success: function(res) {
+                     alert("we good!\n");
+                     valid = 1; 
+                }, 
+                error: function(res) {
+                    alert("Invlid connection code given!");
+                }
+            
+            });
+        }
+        
+        //console.log("hello");
+    
+   
 
     
 </script>

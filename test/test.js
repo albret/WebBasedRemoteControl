@@ -26,3 +26,38 @@ describe('server up', function() {
             .end(done);
     });
 });
+
+
+/*
+user exist
+email exist
+
+create account
+login - everything requires login after this
+check login
+logout
+change password
+delete account
+forgot password
+reset password
+get user data
+??  wss connect, send ocmmand, close connection
+is logged in
+get layout
+save layout
+publish layout
+unpublish layout
+claim layout
+post comment
+vote post
+vote comment
+get post
+
+
+
+
+
+
+
+
+*/

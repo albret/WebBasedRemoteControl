@@ -47,12 +47,12 @@ create table layouts(
     data TEXT NOT NULL,
     layout_name CHAR(255),
     layout_description TEXT,
-    l_active BOOLEAN NOT NULL DEFAULT 0,
+    l_active BOOLEAN NOT NULL DEFAULT 1,
     title CHAR(255),
     text TEXT,
     age CHAR(13),
     score INT DEFAULT 1,
-    p_active BOOLEAN NOT NULL DEFAULT 0,
+    p_active BOOLEAN NOT NULL DEFAULT 1,
     PRIMARY KEY (id),
     FOREIGN KEY (user_id) REFERENCES users(id)
 );
