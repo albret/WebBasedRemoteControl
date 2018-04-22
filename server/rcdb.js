@@ -326,7 +326,7 @@ exports.get_layout = async function(id, req, res) {
         if (!check.auth)
             return res.status(500).send('not logged in');
         if (typeof id == 'undefined') {
-            var data = await rcdb_query('SELECT id, data, layout_name, layout_description FROM layouts WHERE user_id = ?', [check.user_id]);
+            var data = await rcdb_query('SELECT id, data, layout_name, layout_description FROM layouts WHERE user_id = ? AND l_active = 1', [check.user_id]);
             if (data.length == 0)
                 return res.send('no layouts associated with your username');
             var resp_data = [];
@@ -401,7 +401,7 @@ exports.publish_layout = async function(layout_id, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var post = await rcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ?',
+        var post = await rcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ? AND l_active = 1',
             [check.user_id, layout_id]);
         if (post.length == 0)
             return res.status(500).send('cannot find layout from your library');
@@ -441,16 +441,15 @@ exports.unpublish_layout = async function(layout_id, req, res) {
 }
 
 exports.delete_layout = async function(layout_id, req, res) {
-//TODO change layout table to include tombstone column
     try {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var db_check = await rcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ? AND p_active = 1',
+        var db_check = await rcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ? AND l_active = 1',
             [check.user_id, layout_id]);
         if (db_check.length == 0)
             return res.status(500).send('post not found');
-        await rcdb_query('UPDATE layouts SET p_active = 0 WHERE user_id = ? AND id = ?',
+        await rcdb_query('UPDATE layouts SET l_active = 0, p_active = 0 WHERE user_id = ? AND id = ?',
             [check.user_id, layout_id]);
         await rcdb_query('DELETE FROM post_votes WHERE user_id = ? AND layout_id = ?',
             [check.user_id, layout_id]);
