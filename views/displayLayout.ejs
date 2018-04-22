@@ -71,6 +71,24 @@
 </div>
 
 <script>
+    var valid = 0;
+    while (valid == 0) {
+        var code = prompt("Enter a connection code:");
+        if (code === null) {
+            break;
+        }
+        $.ajax({
+            url: '/api/wss_connect',
+            type: 'POST',
+            data: {
+                connectionKey: code
+            },
+            success: function(res) { 
+                
+            }
+        });
+    }
+    
 	var elements = new Array();
 	var names = new Array();
 	var types = new Array();
@@ -161,7 +179,7 @@
     }
 
 
-    
+   /* 
         
         var valid = 0;
         while (valid == 0) {
@@ -194,7 +212,7 @@
             
             });
         }
-        
+     */   
         //console.log("hello");
     
    

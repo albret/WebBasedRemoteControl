@@ -321,9 +321,6 @@ async function is_logged_in(req, res) {
 }
 
 exports.get_layout = async function(id, req, res) {
-//TODO change this to return any layouts that is owned or public
-//TODO ^^^ so the method can be used to fetch data from other pages.
-//TODO and change the save_layout to only be able to save owned layouts
     try {
         var check = await is_logged_in(req, res);
         if (!check.auth)
@@ -352,7 +349,7 @@ exports.get_layout = async function(id, req, res) {
             }
             return res.json(resp_data);
         } else {
-            var data = await rcdb_query('SELECT data, layout_name, layout_description FROM layouts WHERE user_id = ? AND id = ?',
+            var data = await rcdb_query('SELECT data, layout_name, layout_description FROM layouts WHERE (user_id = ? AND id = ?) OR p_active = 1',
                 [check.user_id, id]);
             if (data.length == 0)
                 return res.send('layout not found from your library');
@@ -386,6 +383,10 @@ exports.save_layout = async function(data, layout_id, name, description, req, re
                 [check.user_id, JSON.stringify(data), name, description]);
             return res.send('success id=' + result.insertId);
         } else {
+            var owned = await rcdb_query('SELECT * FROM layouts WHERE user_id = ? AND id = ?',
+                [check.id, layout.id]);
+            if (owned.length == 0)
+                return res.status(500).send('cannot find layout from your library');
             await rcdb_query('UPDATE layouts SET data = ?, name = ?, description = ? WHERE user_id = ? AND id = ?',
                 [JSON.stringify(data), name, description, check.id, layout_id]);
             return res.send('success');
@@ -395,7 +396,7 @@ exports.save_layout = async function(data, layout_id, name, description, req, re
     }
 }
 
-exports.publish_layout = async function(title, layout_id, text, req, res) {
+exports.publish_layout = async function(layout_id, req, res) {
     try {
         var check = await is_logged_in(req, res);
         if (!check.auth)
@@ -406,8 +407,8 @@ exports.publish_layout = async function(title, layout_id, text, req, res) {
             return res.status(500).send('cannot find layout from your library');
         if (!post[0].p_active) {
             var curtime = Date.now();
-            await rcdb_query('UPDATE layouts SET p_active = 1, age = ?, title = ?, text = ? WHERE user_id = ? AND id = ?',
-                [curtime, title, text, check.user_id, layout_id]);
+            await rcdb_query('UPDATE layouts SET p_active = 1, age = ? WHERE user_id = ? AND id = ?',
+                [curtime, check.user_id, layout_id]);
             await rcdb_query('INSERT INTO post_votes (user_id, layout_id, vote) values (?, ?, 1)', 
                 [check.user_id, layout_id]);
             return res.send('success'); 
@@ -542,7 +543,7 @@ exports.get_posts = async function(sort, last_id, req, res) {
         if (sort == 0) {//by vote
             if (typeof last_id == 'undefined') {
                 var results = await rcdb_query(
-                    `SELECT U.username, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    `SELECT U.username, L.layout_name, L.layout_description, L.age, L.score, L.id
                     FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
                     WHERE L.p_active = 1
                     ORDER BY L.score DESC, L.age DESC
@@ -550,7 +551,7 @@ exports.get_posts = async function(sort, last_id, req, res) {
                 return res.json(results);
             } else {
                 var results = await rcdb_query(
-                    `SELECT U.username, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    `SELECT U.username, L.layout_name, L.layout_description, L.age, L.score, L.id
                     FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
                     WHERE L.score <= (SELECT score FROM layouts WHERE id = ? limit 1)
                         AND L.age <= (SELECT age FROM layouts WHERE id = ? limit 1)
@@ -562,7 +563,7 @@ exports.get_posts = async function(sort, last_id, req, res) {
         } else if (sort == 1) {//by date
             if (typeof last_id == 'undefined') {
                 var results = await rcdb_query(
-                    `SELECT U.username, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    `SELECT U.username, L.layout_name, L.layout_description, L.age, L.score, L.id
                     FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
                     WHERE L.p_active = 1
                     ORDER BY L.age DESC
@@ -570,7 +571,7 @@ exports.get_posts = async function(sort, last_id, req, res) {
                 return res.json(results);
             } else {
                 var results = await rcdb_query(
-                    `SELECT U.username, L.data, L.layout_name, L.layout_description, L.title, L.text, L.age, L.score
+                    `SELECT U.username, L.layout_name, L.layout_description, L.age, L.score, L.id
                     FROM layouts AS L INNER JOIN users AS U ON L.user_id = U.id
                     WHERE L.age <= (SELECT age FROM layouts WHERE id = ? limit 1) AND L.p_active = 1
                     ORDER BY L.age DESC

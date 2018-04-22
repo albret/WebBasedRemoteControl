@@ -65,6 +65,11 @@ module.exports = function(app) {
         res.render('createPage', {email: email});
     });
 
+    app.get('/search', async function(req,res) {
+        var email = await rcdb.get_user_data(req, res);
+        res.render('search', {email: email});
+    });
+
     /////////////////////////////////////////////////////////////////////////////////////
     /////////////////////////////////////API Routes//////////////////////////////////////
     /////////////////////////////////////////////////////////////////////////////////////
@@ -151,10 +156,11 @@ module.exports = function(app) {
 
     ///////////////////////////////////Community routes//////////////////////////////////
     app.post('/api/publish_layout', function(req, res) {
-        var title = req.body.title;
+//        var title = req.body.title;
         var layout_id = req.body.layout_id;
-        var text = req.body.text;
-        return rcdb.publish_layout(title, layout_id, text, req, res);
+//        var text = req.body.text;
+//        return rcdb.publish_layout(title, layout_id, text, req, res);
+        return rcdb.publish_layout(layout_id, req, res);
     });
 
     app.post('/api/unpublish_layout', function(req, res) {
@@ -195,9 +201,9 @@ module.exports = function(app) {
         return rcdb.get_posts(0, last_id, req, res);
     });
 
-    app.get('/api/get_community_posts/date/:last_id?', function(req, res) {
+    app.get('/api/get_posts/date/:last_id?', function(req, res) {
         var last_id = req.params.last_id;
-        return rcdb.get_posts(i, last_id, req, res);
+        return rcdb.get_posts(1, last_id, req, res);
     });
 
     ////////////////////////////////Desktop Client routes////////////////////////////////
