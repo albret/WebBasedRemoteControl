@@ -8,7 +8,6 @@ var server_http = supertest.agent('http://localhost:' + conf.server.http);
 var server = supertest.agent('https://localhost:' + conf.server.https);
 process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0';
 
-
 before(function(done) {
     myapp = require('../server/app');
     app = myapp.server;
@@ -35,7 +34,7 @@ after(function(done) {
     }, 1000);
 });
 
-describe('Server up', function() {
+describe('Server up -', function() {
     it('should redirect http to https', function(done) {
         server_http.get('/')
             .expect(302)
@@ -48,8 +47,8 @@ describe('Server up', function() {
     });
 });
 
-describe('API without auth', function() {
-    describe('User exist', function() {
+describe('API without auth -', function() {
+    describe('User exist -', function() {
         it('true', function(done) {
             server.get('/api/user_exist/asd001')
                 .expect(200)
@@ -63,7 +62,7 @@ describe('API without auth', function() {
                 .end(done);
         });
     });
-    describe('Email exist', function() {
+    describe('Email exist -', function() {
         it('true', function(done) {
             server.get('/api/email_exist/asd001@example.com')
                 .expect(200)
@@ -78,9 +77,10 @@ describe('API without auth', function() {
         });
     });
 });
+
 //remember to test db if time allow
-describe('User Account API', function() {
-    describe('Create account', function() {
+describe('User Account API -', function() {
+    describe('Create account -', function() {
         it('email in use', function(done) {
             var body = {'email' : 'asd001@example.com', 'username' : 'asd004', 'password' : 'Asd004'};
             server.post('/api/create_account')
@@ -120,7 +120,7 @@ describe('User Account API', function() {
                 .end(done);
         });
     });
-    describe('Login', function() {
+    describe('Login -', function() {
         it('email not in use', function(done) {
             var body = {'email' : 'asd005@example.com', 'pass' : 'Asd005', 'remember' : false};
             server.post('/api/login')
@@ -138,7 +138,7 @@ describe('User Account API', function() {
                 .end(done);
         });
         it('valid', function(done) {
-            var body = {'email' : 'asd004@example.com', 'pass' : 'Asd004', 'remember' : false};
+            var body = {'email' : 'asd001@example.com', 'pass' : 'Asd001', 'remember' : false};
             server.post('/api/login')
                 .send(body)
                 .expect(200)
@@ -155,7 +155,7 @@ describe('User Account API', function() {
         });
     });
     
-    describe('Logout', function() {
+    describe('Logout -', function() {
         it('while logged in', function(done) {
             server.get('/api/logout')
                 .expect(200)
@@ -169,47 +169,121 @@ describe('User Account API', function() {
                 .end(done);
         });
     });
-    describe('Change password', function() {
+    describe('Change password -', function() {
         it('not logged in', function(done) {
-            server.get('/api/')
-                .expect(200)
-                .expect('logged out')
+            var body = {'oldPassword' : 'Asd001', 'newPassword' : 'Asd001'};
+            server.post('/api/change_password')
+                .send(body)
+                .expect(500)
+                .expect('not logged in')
                 .end(done);
         });
         it('wrong password', function(done) {
-            server.get('/api/logout')
+            var body = {'email' : 'asd001@example.com', 'pass' : 'Asd001', 'remember' : false};
+            server.post('/api/login')
+                .send(body)
                 .expect(200)
-                .expect('not logged in anyways')
+                .expect('success')
+                .end(function() {
+                    var body = {'oldPassword' : 'Asd002', 'newPassword' : 'Asd003'};
+                    server.post('/api/change_password')
+                        .send(body)
+                        .expect(500)
+                        .expect('incorrect password')
+                        .end(done);
+                });
+        });
+        it('valid', function(done) {
+            var body = {'oldPassword' : 'Asd001', 'newPassword' : 'Asd000'};
+            server.post('/api/change_password')
+                .send(body)
+                .expect(200)
+                .expect('success')
+                .end(function() {
+                    server.get('/api/logout')
+                        .expect(200)
+                        .expect('logged out')
+                        .end(done);
+                });
+        });
+        it('confirm password change', function(done) {
+            var body = {'email' : 'asd001@example.com', 'pass' : 'Asd000', 'remember' : false};
+            server.post('/api/login')
+                .send(body)
+                .expect(200)
+                .expect('success')
+                .end(function() {
+                    server.get('/api/logout')
+                    .expect(200)
+                    .expect('logged out')
+                    .end(done);
+                });
+        });
+    });
+    describe('Delete account -', function() {
+        it('not logged in', function(done) {
+            var body = {'username' : 'asd002', 'email' : 'asd002@example.com', 'password' : 'Asd002'};
+            server.post('/api/delete_account')
+                .send(body)
+                .expect(500)
+                .expect('not logged in')
+                .end(done);
+        });
+        it('wrong email', function(done) {
+            var body = {'email' : 'asd002@example.com', 'pass' : 'Asd002', 'remember' : false};
+            server.post('/api/login')
+                .send(body)
+                .expect(200)
+                .expect('success')
+                .end(function() {
+                    var body = {'username' : 'asd002', 'email' : 'asd001@example.com', 'password' : 'Asd002'};
+                    server.post('/api/delete_account')
+                        .send(body)
+                        .expect(500)
+                        .expect('Wrong username or email')
+                        .end(done);
+            });
+        });
+        it('wrong username', function(done) {
+            var body = {'username' : 'asd001', 'email' : 'asd002@example.com', 'password' : 'Asd002'};
+            server.post('/api/delete_account')
+                .send(body)
+                .expect(500)
+                .expect('Wrong username or email')
                 .end(done);
         });
         it('valid', function(done) {
-            server.get('/api/logout')
+            var body = {'username' : 'asd002', 'email' : 'asd002@example.com', 'password' : 'Asd002'};
+            server.post('/api/delete_account')
+                .send(body)
                 .expect(200)
-                .expect('not logged in anyways')
+                .expect('success')
                 .end(done);
         });
+        it('cannot login after account deletion', function(done) {
+            server.get('/api/logout')
+                .expect(200)
+                .expect('logged out')
+                .end(function() {
+                    var body = {'email' : 'asd002@example.com', 'pass' : 'Asd002', 'remember' : false};
+                    server.post('/api/login')
+                        .send(body)
+                        .expect(500)
+                        .expect('unable to login')
+                        .end(done);
+                });
+        });
     });
-    //change password
-    //is not logged in
-    //bad password
-    //correct
 
-    //delete account
-    //is not logged in
-    //email doesnt match logged in user
-    //bad username
-    //bad password
-    //correct
-    //cannot login again
 });
 
-describe('Layout Editor API', function() {
+describe('Layout Editor API -', function() {
     //get layout
     //save layout
 });
 
 
-describe('Layout Editor API', function() {
+describe('Layout Editor API -', function() {
     //publish layout
     //unpublish layout
     //delete layout
@@ -348,9 +422,9 @@ function db_setup() {
             await db('INSERT INTO users (username, email, hash, active) values (?, ?, ?, ?)', 
                 ['asd001', 'asd001@example.com', '$2a$10$HWVPQOHKXMEf/LmJoRjWeuhh.UwxkYADK.C/bp/J6lEAqdZ.sl79a', 1]);
             await db('INSERT INTO users (username, email, hash, active) values (?, ?, ?, ?)', 
-                ['asd002', 'asd002@example.com', 'Tvmd.Ne7MBswRbOSSShimedgtU6IBc6xCgA96m3OweKdrLozvxOgq', 1]);
+                ['asd002', 'asd002@example.com', '$2a$10$Tvmd.Ne7MBswRbOSSShimedgtU6IBc6xCgA96m3OweKdrLozvxOgq', 1]);
             await db('INSERT INTO users (username, email, hash, active) values (?, ?, ?, ?)', 
-                ['asd003', 'asd003@example.com', 'JxhFfgdLeobnIKy3KpACluUv8GC9etx4kiGJFOZWo3RGuMnVGogua', 0]);
+                ['asd003', 'asd003@example.com', '$2a$10$JxhFfgdLeobnIKy3KpACluUv8GC9etx4kiGJFOZWo3RGuMnVGogua', 0]);
             resolve();
         } catch (err) {
             console.log(err);

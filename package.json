@@ -17,6 +17,6 @@
   },
   "scripts": {
     "start": "node server/app.js",
-    "test": "NODE_ENV=test ./node_modules/mocha/bin/mocha --no-timeouts --full-trace -s 10000"
+    "test": "NODE_ENV=test ./node_modules/mocha/bin/mocha --no-timeouts --full-trace -s 10000 -R list"
   }
 }

@@ -146,7 +146,7 @@ exports.change_password = async function(oldPass, newPass, req, res) {
             return res.status(500).send('incorrect password');
         
         var newHash = await newHashPromise;
-        var updateHash = rcdb_query('UPDATE users SET hash = ? WHERE email = ?', [newHash, email]);
+        var updateHash = rcdb_query('UPDATE users SET hash = ? WHERE email = ?', [newHash, check.email]);
         return res.send('success');
     } catch (err) {
         return send_error(err, 500, "Internal server error");
@@ -161,7 +161,7 @@ exports.delete_account = async function(username, email, password, req, res) {
         if (!check.auth)
             return res.status(500).send("not logged in");
         if (check.email != email)
-            return res.status(500).send("You can't delete someone else's account");
+            return res.status(500).send("Wrong username or email");
 
         var hash = await getHashPromise;
         if (hash.length == 0)
