@@ -16,36 +16,67 @@ ol, li {
   display: inline;
 }
 
-@media only screen and (min-width:320px) {
-	body {
-		overflow-x: hidden;
-	}
-	#logo {
-		margin-top: -30%;
-	}	
-	#title {
-		margin-top: -20%;
-		
-	}
+@media only screen and (min-width:320px) and (max-width: 500px) {
+    .input-group {
+        width: 50%;
+    }
+    #title {
+        font-size: 32px;
+    }
+    #logo {
+        width: 70%;
+        margin-top: -20%;
+    }
+    body {
+        overflow-x: hidden;
+    }
+    
+    #title {
+        margin-top: -20%;
+        text-align: center;
+    }
     #profileinfo p {
         margin-left: 1%;
     }
-
+    #aclogo {
+        width: 70%;
+        margin-left: auto;
+        margin-right: auto;
+        display: block;
+        margin-top: -15%;
+    }
+    #createaccheader {
+        text-align: center;
+        margin-top: -12%;
+    }
     #recentmade h2 {
         padding-left: 5%;
     }
-    
+    #loginbtn {
+        width: 35%;
+    }
     #userfav h2 {
         padding-left: 5%;
     }
     .navbar-brand {
         font-size: 90%;
     }
-    
+
 }
 
-@media only screen and (min-width:1224px) {
-	#logo {
+
+@media only screen and (min-width: 1225px) {
+	#aclogo {
+        display: block;
+        margin-left: auto;
+        margin-right: auto;
+        width: 20%;
+        margin-top: -5%;
+    }
+    #createaccheader {
+        margin-top: -5;
+    }
+    #logo {
 		margin-top: -5px;
 		height: 35%;
 	}
@@ -53,6 +84,9 @@ ol, li {
 		margin-top: 0%;
 		text-align: center;
 	}
+    #loginbtn {
+        width: 7%;
+    }
     #profileinfo {
         width: 30%;
         margin-left: 3%;
@@ -89,13 +123,12 @@ ol, li {
 	margin-top: 2%;
 }
 
-.form-control.form-control-lg.b{
-	width: 20%;
-	margin-top: 10%;
+.form-control.form-control-lg.b {
+	width: 30%;
+    margin-top: 3%;
 	margin-right: 4%;
 	margin-left: -2%;
-	display: inline-block;
-	
+	display: block;
 }
 
 .cmdb {
@@ -126,7 +159,7 @@ ol, li {
 }
 
 #currentcmds {
-		//border-style: solid;
+		/*border-style: solid;*/
 		width: 27%;
 		height: 10%;
 		float: left;
@@ -143,6 +176,7 @@ ol, li {
 		top: -64%;
 		margin-left: 5%;
 		position: relative;
+        margin-top: -3%;
     }
 
     table, td {
@@ -153,13 +187,14 @@ ol, li {
 	    width: 30%;	
 	    text-align: center;
     }
+    #bb {
+        padding-top: 2%;
+        border: none;
+    }
 
-#bb {
-    padding-top: 2%;
-    border: none;
+    #searchtable td {
+        border: none;
+    }
 }
 
-#searchtable td {
-    border: none;
-}
-}
+

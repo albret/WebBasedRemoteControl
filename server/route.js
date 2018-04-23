@@ -91,7 +91,8 @@ module.exports = function(app) {
         var user = req.body.username;
         var pass = req.body.password;
         await rcdb.create_account(user, email, pass, req, res);
-        return rcdb.login(email, pass, false, req, res);
+        if (!res.headersSent)
+            return rcdb.login(email, pass, false, req, res);
     });
     
     app.post('/api/login', function(req, res) {

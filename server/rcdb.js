@@ -6,7 +6,7 @@ const mysql = require('mysql'),
 
 exports.connect = async function connect() {
     con = mysql.createPool({
-        connectionLimit : 64,
+        connectionLimit : 32,
         host            : conf.mysql.host,
         port            : conf.mysql.port,
         user            : conf.mysql.user,
