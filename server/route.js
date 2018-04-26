@@ -25,50 +25,59 @@ module.exports = function(app) {
         res.render('AccountCreate');
     });
     
-    app.get('/viewTemplates', function(req, res) {
+    app.get('/viewTemplates', async function(req, res) {
         var email = await rcdb.get_user_data(req, res);
-        res.render('viewTemplates', {email: email});
+        if (!res.headersSent)
+            res.render('viewTemplates', {email: email});
     });
    
     app.get('/displayLayout', async function(req, res) {
         var email = await rcdb.get_user_data(req,res);
-        res.render('displayLayout', {email: email});
+        if (!res.headersSent)
+            res.render('displayLayout', {email: email});
     });    
 
     app.get('/displayLayout/:layout_id', async function(req, res) {
         var layout_id = req.params.layout_id;
         var email = await rcdb.get_user_data(req, res);
-        res.render('displayLayout', {email: email, layout_id: layout_id});
+        if (!res.headersSent)
+            res.render('displayLayout', {email: email, layout_id: layout_id});
     });
 
     app.get('/home', async function(req, res) {
         var email = await rcdb.get_user_data(req, res);
-        res.render('home', {email: email});
+        if (!res.headersSent)
+            res.render('home', {email: email});
     });
  
     app.get('/profile', async function(req, res) {
         var email = await rcdb.get_user_data(req, res);
-        res.render('profile', {email: email});
+        if (!res.headersSent)
+            res.render('profile', {email: email});
     });
     
     app.get('/resetPassword', async function(req, res) {
         var email = await rcdb.get_user_data(req, res);
-        res.render('resetPassword', {email: email});
+        if (!res.headersSent)
+            res.render('resetPassword', {email: email});
     });
     
     app.get('/deleteAccount', async function(req, res) {
         var email = await rcdb.get_user_data(req, res);
-        res.render('deleteAccount', {email: email});
+        if (!res.headersSent)
+            res.render('deleteAccount', {email: email});
     });
 
     app.get('/createPage', async function(req,res) {
         var email = await rcdb.get_user_data(req, res);
-        res.render('createPage', {email: email});
+        if (!res.headersSent)
+            res.render('createPage', {email: email});
     });
 
     app.get('/search', async function(req,res) {
         var email = await rcdb.get_user_data(req, res);
-        res.render('search', {email: email});
+        if (!res.headersSent)
+            res.render('search', {email: email});
     });
 
     /////////////////////////////////////////////////////////////////////////////////////
