@@ -237,8 +237,10 @@ exports.wss_connect = async function(key, req, res) {
             return res.status(500).send("not logged in");
 
         var checkKey = await rcdb_query('SELECT * FROM wsSessions WHERE connection_key = ?', [key]);
-        if (checkKey.length == 0)
+        if (checkKey.length == 0) {
+            console.log("wss-connect 500: checkKey.length == 0");
             return res.status(500).send("Internal server error: connection key not found");
+        }
 
         var currTime = Date.now();
         console.log(currTime + "|" + checkKey[0].expire);
