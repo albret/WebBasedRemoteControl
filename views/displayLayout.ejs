@@ -176,24 +176,23 @@
         alert(id);
     });
     });
-    }
-
-
-   /* 
+    } 
         
         var valid = 0;
         while (valid == 0) {
             var code = prompt("Please enter connection code from desktop application");
             console.log(code);
             if (code === null) {
-                //window.location.href = 'https://applepie.albert.tech/home?';
-                $.ajax({
+                window.location.href = 'https://applepie.albert.tech/home';
+                /*
+                $.ajax(
                     url: '/home',
                     type: 'GET',
                     success: function(res) {
 
                     }
                 });
+                */
             }
             $.ajax({
                 url: '/api/wss_connect',
@@ -212,7 +211,7 @@
             
             });
         }
-     */   
+         
         //console.log("hello");
     
    

@@ -460,7 +460,8 @@
 	
 
 <script>
-	var usedblocks = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; //0(no)
+	var idtot = 0;
+    var usedblocks = [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]; //0(no)
 	var elements = new Array();
 	var names = new Array();
 	var types = new Array();
@@ -613,7 +614,10 @@
 	function deleteElement() {
 			var element = document.getElementById("ElementList");
 			var index = element.selectedIndex;
-			var name = names[index];
+            var size = element.length;
+            var options = element.options;
+			var name = $('#ElementList option:selected').text();
+   alert(name);
 			if (index == -1) {
 				alert("No elements have been added!");
 				return;
@@ -626,6 +630,17 @@
 					console.log(usedblocks[elements[index][i] - 1]);
 					usedblocks[elements[index][i] - 1] = 0;	
 				}
+                if (index != size - 1) {
+                for (var i = index + 1; i < size; i++) {
+                    var tempid = names[i].substring(0, names[i].length);
+                    var oldid = names[i] + i;
+                    console.log("old id: " + oldid);
+                    tempid += (i - 1);
+                    console.log("new id: " + tempid);
+                    document.getElementById(oldid).id = tempid;
+                    //$(oldid).attr('id', tempid);
+                }
+                }
 				elements.splice(index, 1);
 				names.splice(index, 1);
 				types.splice(index, 1);
@@ -634,7 +649,9 @@
 				widths.splice(index, 1);
 				mtops.splice(index, 1);
 				mlefts.splice(index, 1);
-				document.getElementById("table").deleteRow(index + 1);
+				//alert(name + index);
+                idtot--;
+                document.getElementById("table").deleteRow(index + 1);
 				element.remove(index);
 				document.getElementById(name + index).remove();
 			}		 	
@@ -642,8 +659,8 @@
 	
 	function displayElement(index) {
 		var hMulti = Math.floor((elements[index][elements[index].length - 1] / 6)) - Math.floor((elements[index][0] / 6));
-		if (Math.floor(elements[index][elements[index].length - 1] / 6) == 6) {
-            //hMulti--;
+		if (Math.floor(elements[index][elements[index].length - 1] / 6) == 6 && (Math.floor(elements[index][0] / 6)) == 0) {
+            hMulti++;
 		}
 		if (elements[index][elements[index].length - 1] - elements[index][0] <= 5) {
 			hMulti = 0;	
@@ -662,14 +679,26 @@
 		if (elements[index][0] % 6 == 0) {
 				isend = 1;
 		}
-        
-        if (elements[index][elements[index].length - 1] == 36) {
+        //alert(elements[index][elements[index].length - 1]);
+        if (elements[index][0] % 6 > 0 && elements[index][elements[index].length - 1] % 6 == 0) {
             isendlast = 1;
         }
-		var height = 16.66 * (hMulti + 1);
+		
+        var blocksbottom = Math.trunc(parseInt(elements[index][elements[index].length - 1], 10) / 6);
+        //alert(elements[index][elements[index].length - 1] % 6);
+        if (elements[index][elements[index].length - 1] % 6 == 0) {
+          
+            blocksbottom--;
+        }    
+        var bottom = (5 - blocksbottom) * 16.66;
+        if (elements[index][elements[index].length - 1] / 6 == 6) {
+            bottom = 0;
+        }
+        var height = 16.66 * (hMulti + 1 - isendlast);
 		if (height == 0) {
 			height = 16.66;	
 		}
+
 		var width = 16.66 * wMulti;
 		var mtopviz = 16.66 * (Math.floor(elements[index][0] / 6) - isend) + 7.4; //7.4% gets into box
 	
@@ -691,23 +720,26 @@
 		if (elements[index][0] % 6 == 0) {
 			mleft = 16.66 * 5;	
 		}
+        
         console.log("htmulti: " + hMulti); 
         console.log("height: " + height);
         console.log("width: " + width);
         console.log("mtopviz: " + mtopviz);
         console.log("mtop: " + mtop);
-		var addthis = "";
+		
+        var addthis = "";
 		if (types[index] == "Button") {
-			addthis = "<button id=\"" + (names[index] + index) + "\"style=\"position: absolute; margin-top: " + mtopviz + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"button\" class=\"btn\"\"> " + names[index] + "</button>";
+			addthis = "<button id=\"" + (names[index] + idtot) + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"button\" class=\"btn\"\"> " + names[index] + "</button>";
 		} else if (types[index] == "Slider") {
 			//addthis = "<input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"myRange\">"
 			if (height > width) {
-				addthis = "<input id=\"" + (names[index] + index) + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; margin-top: " + mtopviz + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+				addthis = "<input id=\"" + (names[index] + idtot) + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; bottom: " + bottom + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
 			} else {
-				addthis = "<input id=\"" + (names[index] + index) + "\"style=\"position: absolute; margin-top: " + mtopviz + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+				addthis = "<input id=\"" + (names[index] + idtot) + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
 
 			}
 		}
+        idtot++;
 		heights.push(height);
 		widths.push(width);
 		mtops.push(mtop);

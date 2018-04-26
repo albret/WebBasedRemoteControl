@@ -194,6 +194,11 @@ ol, li {
 
     #searchtable td {
         border: none;
+        padding-bottom: 3%;
+    }
+    #sortbybtn {
+        margin-bottom: 2%;
+        margin-left: 3.5%;
     }
 }
 

@@ -26,7 +26,8 @@ module.exports = function(app) {
     });
     
     app.get('/viewTemplates', function(req, res) {
-        res.render('viewTemplates');
+        var email = await rcdb.get_user_data(req, res);
+        res.render('viewTemplates', {email: email});
     });
    
     app.get('/displayLayout', async function(req, res) {
@@ -178,6 +179,11 @@ module.exports = function(app) {
         var vote = req.body.vote;
         var layout_id = req.body.layout_id;
         return rcdb.vote_post(layout_id, vote, req, res); 
+    });
+
+    app.get('/api/check_vote_post/:layout_id', function(req, res) {
+        var layout_id = req.params.layout_id;
+        return rcdb.check_vote_post(layout_id, req, res);
     });
 
     app.post('/api/claim_layout', function(req, res) {

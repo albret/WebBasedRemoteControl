@@ -349,7 +349,7 @@ exports.get_layout = async function(id, req, res) {
             }
             return res.json(resp_data);
         } else {
-            var data = await rcdb_query('SELECT data, layout_name, layout_description FROM layouts WHERE (user_id = ? AND id = ?) OR p_active = 1',
+            var data = await rcdb_query('SELECT data, layout_name, layout_description FROM layouts WHERE (user_id = ? OR p_active = 1) AND id = ?',
                 [check.user_id, id]);
             if (data.length == 0)
                 return res.send('layout not found from your library');
@@ -501,15 +501,31 @@ exports.vote_post = async function(layout_id, vote, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var layout = await rcdb_query('SELECT * FROM layouts WHERE id = ? AND p_active = 1',
+        var layout = await rcdb_query('SELECT score FROM layouts WHERE id = ? AND p_active = 1',
             [layout_id]);
         if (layout.length == 0)
             return res.status(500).send('post not found');
-        var original_vote = await rcdb_query('SELECT vote, count(vote) AS cnt FROM post_votes WHERE user_id = ? AND layout_id = ?', [check.user_id, layout_id]);
-        var diff = vote - (original_vote[0].cnt == 0 ? 0 : vote);
+        var original_vote = await rcdb_query('SELECT vote FROM post_votes WHERE user_id = ? AND layout_id = ?', [check.user_id, layout_id]);
+        var diff = vote - (original_vote.length == 0 ? 0 : original_vote[0].vote);
+        if (diff == 0)
+            return res.send('' + layout[0].score);
         await rcdb_query('INSERT INTO post_votes (user_id, layout_id, vote) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vote = ?', [check.user_id, layout_id, vote, vote]);
-        await rcdb_query('UPDATE layouts SET score = score + ? WHERE layout_id = ?', [diff, layout_id]);
-        return res.send('success');
+        await rcdb_query('UPDATE layouts SET score = score + ? WHERE id = ?', [diff, layout_id]);
+        return res.send('' + (layout[0].score + diff));
+    } catch (err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
+exports.check_vote_post = async function(layout_id, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        var vote = await rcdb_query('SELECT * FROM post_votes WHERE user_id = ? AND layout_id = ?',
+            [check.user_id, layout_id]);
+        var output = vote.length == 0 ? 0 : vote[0].vote;
+        return res.send('' + output);
     } catch (err) {
         return send_error(err, 500, 'Internal server error');
     }
@@ -520,12 +536,14 @@ exports.vote_comment = async function(comment_id, vote, req, res) {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
-        var post_check = await rcdb_query('SELECT * FROM layouts INNER JOIN comments ON layouts.id = comments.layout_id WHERE comments.id = ? AND layouts.p_active = 1', [comment_id]);
+        //?var post_check = await rcdb_query('SELECT * FROM layouts INNER JOIN comments ON layouts.id = comments.layout_id WHERE comments.id = ? AND layouts.p_active = 1', [comment_id]);
         var comment = await rcdb_query('SELECT * FROM comments WHERE id = ?', [comment_id]);
         if (comment.length == 0)
             return res.status(500).send('comment not found');
-        var original_vote = await rcdb_query('SELECT vote, count(vote) AS cnt FROM comment_votes WHERE user_id = ? AND comment_id = ?', [check.user_id, comment_id]);
-        var diff = vote - (original_vote[0].cnt == 0 ? 0 : vote);
+        var original_vote = await rcdb_query('SELECT vote FROM comment_votes WHERE user_id = ? AND comment_id = ?', [check.user_id, comment_id]);
+        var diff = vote - (original_vote).length == 0 ? 0 : original_vote[0].vote;
+        if (diff == 0)
+            return res.send('success');
         await rcdb_query('INSERT INTO comment_votes (user_id, comment_id, vote) VALUES (?, ?, ?) ON DUPLICATE KEY UPDATE vote = ?', [check.user_id, comment_id, vote, vote]);
         await rcdb_query('UPDATE comments SET score = score + ? WHERE comment_id = ?', [diff, comment_id]);
         return res.send('success');

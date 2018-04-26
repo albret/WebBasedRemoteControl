@@ -70,13 +70,14 @@
     </div><!-- /.navbar-collapse -->
   </div><!-- /.container-fluid -->
 </nav>
-<div class="dropdown">
-  <button class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
-    Dropdown button
+<div class="dropdown" id="sortbybtn">
+  <button style="width: 8%;" class="btn btn-secondary dropdown-toggle" type="button" id="dropdownMenuButton" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+  Sort By
   </button>
   <div class="dropdown-menu" aria-labelledby="dropdownMenuButton">
-    <a class="dropdown-item" href="#">Action</a>
-    <a class="dropdown-item" href="#">Another action</a>
+    <a class="dropdown-item" href="#">Highest Score</a>
+    </br>
+    <a class="dropdown-item" href="#">Newest</a>
    
   </div>
 </div>
@@ -89,28 +90,6 @@
 				<td style="width: 20%;"> Date </td>
 				<td style="width: 20%;"> Actions </td>
 			</tr>
-			<tr>
-				<td id="bb" style="width: 10%;"> 432 </td>
-				<td id="bb" style="width: 20%;"> First Design </td>
-				<td id="bb" style="width: 30%;"> This is my first design! </td>
-				<td id="bb" style="width: 20%;"> 4/20/2018 </td>
-				<td id="bb" style="width: 20%;"> 
-				<button class="btn"> Upvote </button>
-				<button class="btn"> Downvote </button>
-				<button class="btn" data-toggle="modal" data-target="#myModal"> Preview </button>
-				</td>
-			<tr>
-			<tr>
-				<td id="bb" style="width: 10%;"> 432 </td>
-				<td id="bb" style="width: 20%;"> First Design </td>
-				<td id="bb" style="width: 30%;"> This is my first design! </td>
-				<td id="bb" style="width: 20%;"> 4/20/2018 </td>
-				<td id="bb" style="width: 20%;"> 
-				<button class="btn"> Upvote </button>
-				<button class="btn"> Downvote </button>
-				<button class="btn" data-toggle="modal" data-target="#myModal"> Preview </button>
-				</td>
-			<tr>
 			
 			  <!-- Modal -->
   <div class="modal fade" id="myModal" role="dialog">
@@ -123,10 +102,10 @@
           <h4 class="modal-title">Design Preview</h4>
         </div>
         <div class="modal-body">
-          <div id="currentdesign" style="width: 90%;">
+          <div id="currentdesign" style="margin-top: 1%; width: 90%;">
 			
         </div>
-        <div class="modal-footer">
+        <div style="border:none;" class="modal-footer">
         </div>
       </div>
       
@@ -138,5 +117,153 @@
 <div class="form-group">
 
 <script>
+var layouts;
+$.ajax({
+  url: '/api/get_posts/date',
+  type: 'GET',
+  dataType: 'json',
+  success: function(data) {
+    layouts = data;
+for (var i = 0; i < layouts.length; i++) {
+    var score = layouts[i].score;
+    var name = layouts[i].layout_name;
+    var description = layouts[i].layout_description;
+    var id = layouts[i].id;
+    var date = layouts[i].age;
+    var d = new Date(0);
+    d.setUTCSeconds(date);
+    date = d;
+    var upvote = "upvote" + id;
+    var downvote = "downvote" + id;
+    var preview = "preview" + id;
+    var save = "save" + id;
+    var addthis = "<tr>\n" +
+                "<td id=\"score" + id + "\" style=\"width: 10%;\"> " + score + " </td>\n" +
+                "<td id=\"name" + id + "\" style=\"width: 20%;\"> " + name + " </td>\n" +
+                "<td id=\"desc" + id + "\" style=\"width: 30%;\"> " + description + " </td>\n" +
+                "<td id=\"date" + id + "\" style=\"width: 20%;\"> " + date + " </td>\n" +
+                "<td style=\"width: 20%;\">\n" +
+                "<button ocClick=\"save(this.id.substring(4))\"id=\"" + save + "\" class=\"btn\"> Save </button>\n" + 
+                "<button onClick=\"upvote(this.id.substring(6))\" id=\"" + upvote + "\" class=\"btn\"> Upvote </button>\n" +
+                "<button onClick=\"downvote(this.id.substring(8))\" id=\"" + downvote + "\" class=\"btn\"> Downvote </button>\n" +
+                "<button onClick=\"preview(this.id.substring(7))\" id=\"" + preview + "\" class=\"btn\" data-toggle=\"modal\" data-target=\"#myModal\"> Preview </button>\n" +
+                "</td>\n" +
+                "</tr>"
+    document.getElementById("searchtable").innerHTML += addthis;
+    }
+    },
+    error: function(res) {
+    console.log("Error!");
+  }
+});
+
+function preview(bid) {
+    $.ajax({
+        url: '/api/get_layout/' + bid,
+        type: 'GET',
+        success: function(data) {
+            var elements = data.elements;
+            var heights = data.heights;
+            var mlefts = data.mlefts;
+            var mtops = data.mtops;
+            var widths = data.widths;
+            var names = data.names;
+            var types = data.types;
+            var addthis = "";
+            for (var i = 0; i < data.elements.length; i++) {
+                var blocksbottom = Math.trunc(parseInt(elements[i][elements[i].length - 1], 10) / 6);
+                if (parseInt(elements[i][elements[i].length - 1] % 6 == 0)) {
+                    blocksbottom--;   
+                }
+                var bottom = (5 - blocksbottom) * 16.66;
+                if (elements[i][elements[i].length - 1] / 6 == 6) {
+                    bottom == 0;
+                }
+                if (types[i] == "Button") {
+                     addthis = "<button id=\"" + (names[i] + bid) + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[i] + "%; height: " + heights[i] + "%; width: " + widths[i] + "%;\" type=\"button\" class=\"btn\"\"> " + names[i] + "</button>";
+                } else if (types[i] == "Slider") {
+                if (heights[i] > widths[i]) {
+                    addthis = "<input id=\"" + (names[i] + bid) + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[i] + "%; height: " + heights[i] + "%; width: " + widths[i] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+                } else {
+                    addthis = "<input id=\"" + (names[i] + bid) + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[i] + "%; height: " + heights[i] + "%; width: " + widths[i] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+
+               }
+            }  
+            document.getElementById('currentdesign').innerHTML += addthis;
+
+           }
+        }
+    });
+}
+
+$('#myModal').on('hidden.bs.modal', function() {
+    document.getElementById('currentdesign').innerHTML = '';
+});
+
+function upvote(bid) {
+$.ajax({
+    url: '/api/check_vote_post/' + bid,
+    type: 'GET',
+    success: function(data) {
+    if (data < 1) {
+    $.ajax({
+        url: '/api/vote_post',
+        type: 'POST',
+        data: {
+            vote: 1,
+            layout_id: bid
+        },
+        success: function(res) {
+            $.ajax({
+                url: 'api/get_layout/' + bid,
+                success: function(data) {
+                document.getElementById("score" + bid).innerText=res;    
+                //document.getElementById("score" + bid).innerHTML = parseInt(document.getElementById("score" + bid).value, 10) + 1;
+                }
+            });
+         }
+    })
+    };
+    }
+});
+}
+
+function downvote(bid) {
+$.ajax({
+     url: '/api/check_vote_post/' + bid,
+     type: 'GET',
+     success: function(data) { 
+     if (data > -1) {
+     $.ajax({
+        url: '/api/vote_post',
+        type: 'POST',
+        data: {
+            vote: -1,
+            layout_id: bid
+        },
+        success: function(data) {       
+                    $.ajax({
+                        url: 'api/get_layout/' + bid,
+                        success: function(data) {
+                            document.getElementById("score" + bid).innerText=parseInt(document.getElementById('score' + bid).innerText,10) - 1;
+                        //document.getElementById("score" + bid).innerHTML = data;
+                        }
+                    });
+                 },
+                error: function(data) {
+
+                }
+            });
+        }
+    }
+});
+}
+
+function save(bid) {
+
+}
+
+
+
 </script>
 </html>

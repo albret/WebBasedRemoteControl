@@ -278,8 +278,20 @@ describe('User Account API -', function() {
 });
 
 describe('Layout Editor API -', function() {
-    //get layout
-    //save layout
+//get layout
+//get another user’s layout (published/unpublished)
+//correct - get layouts from current user
+//get a layout
+//not logged in
+//user has no layouts
+//more than 10 layouts
+//get layout from non-existent user/user with 0 layout
+//get deleted layout
+
+//save layout
+//user is not logged in
+//edit layout
+//new layout
 });
 
 
