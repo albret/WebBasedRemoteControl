@@ -7,6 +7,7 @@ import time
 import pyautogui
 import os
 import subprocess
+from threading import Thread
 from Tkinter import *
 
 class App:
@@ -135,7 +136,13 @@ class App:
 		    #print "Received '%s'" % result
 		    #print result
 		    r += result
+
 		print r
+        thread.start_new_thread(recLoop)
+    def recLoop(self):
+        while 1:
+            print("hello")
+
 
 root = Tk()
 root.geometry("500x500")
