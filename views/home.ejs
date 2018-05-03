@@ -1,101 +1,191 @@
 <html>
 <head>
- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="utf-8">
 
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	<link rel="stylesheet" type="text/css" href="./style.css">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 </head>
-
 <body>
 
-<nav class="navbar navbar-inverse navbar-static-top" navbar-default">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="/home">Web Based Remote Control | Home</a>
-    </div>
-
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li><a href="/createPage">Create Template<span class="sr-only">(current)</span></a></li>
-        <li><a href="/viewTemplates">View Templates</a></li>
-        <!--
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">One more separated link</a></li>
-          </ul>
-        </li>
-        -->
-      </ul>
-      <form class="navbar-form navbar-left">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search Templates">
-        </div>
-        <button type="submit" class="btn btn-default">Search</button>
-      </form>
-      <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= email %> <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="/profile">View Profile</a></li>
-            <li><a href="#">Account Settings</a></li>
-            <li><a onClick="logout()">Sign Out</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
-
-
-<div id="recentmade" class = "row">
-   <h2 id=recTitle"> Most Recently Created Templates </h2>
-   <div class = "col-sm-6 col-md-3">
-      <h3 id="mediaplayer"> Media Player </h3>
-      <div class = "thumbnail">
-        <ol>
-         <li><img  src = "media_pause.png"></li>
-         <li><img  src = "media_play.png"></li>
-         <li><img  src = "media_stop.png"></li>
-        <ol>
-        <ol>
-           <li><img  src = "fast_forward.png"></li>
-           <li><img  src = "fast_backward.png"></li>
-        <ol>
+  <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container-fluid">
+      <!-- Brand and toggle get grouped for better mobile display -->
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Web Based Remote Control | Community Center </a>
       </div>
 
-      <div class = "caption">
-         <p>Control media playing on PC.</p>
-         <p><a href = "#" class = "btn btn-primary" role = "button">View</a>
-            <a href = "#" class = "btn btn-default" role = "button">Save</a>
-         </p>
-     </div>
-   </div>
+      <!-- Collect the nav links, forms, and other content for toggling -->
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="/createPage">Create <span class="sr-only">(current)</span></a></li>
+          <li><a href="/viewTemplates">View</a></li>
+        </ul>
+        <form class="navbar-form navbar-left">
+          <div class="form-group">
+            <input type="text" class="form-control" placeholder="Search Templates">
+          </div>
+          <button type="submit" class="btn btn-default">Search</button>
+        </form>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= email %> <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="/profile">View Profile</a></li>
+              <li><a href="#">Account Settings</a></li>
+              <li><a href="#">Sign Out</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+            </ul>
+          </li>
+        </ul>
+      </div><!-- /.navbar-collapse -->
+    </div><!-- /.container-fluid -->
+  </nav>
 
-<script>
-	$(document).ready(function () {
-		$('.dropdown-toggle').dropdown();
-	});
+  <div id="layout-list" class="container-fluid"></div>
+
+  <script>
+
+  $(document).ready(function () {
+    getPost_Date();
+  });
+
+  var allposts = new Array();
+
+  function getPost_Date(){
+
+    $.ajax({
+      url: '/api/get_posts/date',
+      type: 'GET',
+      dataType: 'json',
+      success: function(data) {
+        allposts = data;
+        for (var i = 0; i < allposts.length; i++) {
+          var username = allposts[i].username;
+          var score = allposts[i].score;
+          var id = allposts[i].id;
+          displayOnePost(id, username, score);
+        }
+      },
+      error: function(res) {
+        var msg = JSON.stringify(res);
+        console.log("error from ajax ->" + msg);
+      }
+    });
+  }
+
+  function displayOnePost(lid, username, score){
+    var elements = new Array();
+    var names = new Array();
+    var types = new Array();
+    var elementCmds = new Array();
+    var heights = new Array();
+    var widths = new Array();
+    var mtops = new Array();
+    var mlefts = new Array();
+    var layoutname = "";
+    var descriptions = "";
+    var layoutid=lid;
+    var addthis = "";
+
+    $.ajax({
+      url: '/api/get_layout/'+layoutid,
+      type: 'GET',
+      dataType: 'json',
+      success: function(data) {
+        elements = data.elements;
+        names = data.names;
+        types = data.types;
+        elementCmds = data.elementCmds;
+        heights = data.heights;
+        widths = data.widths;
+        mtops = data.mtops;
+        mlefts = data.mlefts;
+        layoutname =  "Remote: "+data.name;
+        layoutid = data.id;
+        descriptions = data.description;
+      },
+      error: function(res) {
+        console.log("error /api/get_layout/+id:"+id);
+      }
+    });
+
+
+
+
+    var bsblock = $('<div class="col-sm-6 outerblock"><div class="row block-header"><span><a id="postuser"'+username+' href="">'+ username + '</a>' + layoutname+' <span></div><div id="currentdesign' + layoutid+'" class="col-xs-12 currentdesign"></div><div id="desc'+layoutid+'" class="footer-desc col-xs-12"></div><ul id="footer-actions'+layoutid+'" class="navbar-nav col-xs-12" role="navigation"></ul><div id="comment'+layoutid+'" class="col-xs-12 comment-section"></div></div>');
+
+    var divName = "block"+layoutid;
+    console.log(divName);
+    $(bsblock).attr('id', divName);
+    $(bsblock).appendTo("#layout-list");
+    console.log("currDesig elements.length: "+elements.length);
+
+    for (var i = 0; i < elements.length; i++) {
+      var blocksbottom = Math.trunc(parseInt(elements[i][elements[i].length - 1], 10) / 6);
+      if (parseInt(elements[i][elements[i].length - 1], 10) % 6 == 0) {
+        blocksbottom--;
+      }
+      //console.log(blocksbottom);
+      var bottom = (5 - blocksbottom) * 16.66;
+      if (elements[i][elements[i].length - 1] / 6 == 6) {
+        bottom == 0;
+      }
+      var elementDivId = names[i] + layoutid;
+      if (types[i] == "Button") {
+        console.log("margin-left: " + mlefts[i]);
+        addthis = "<button id=\"" + elementDivId + "\"style=\"border: solid; border-color: white; border-width: 2px; position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[i] + "%; height: " + heights[i] + "%; width: " + widths[i] + "%;\" type=\"button\" class=\"btn\"\"> " + names[i] + "</button>";
+      } else if (types[i] == "Slider") {
+        if (heights[i] > widths[i]) {
+          addthis = "<input id=\"" + (names[i] + layoutid) + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[i] + "%; height: " + heights[i] + "%; width: " + widths[i] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+        } else {
+          addthis = "<input id=\"" + (names[i] + layoutid) + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[i] + "%; height: " + heights[i] + "%; width: " + widths[i] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+
+        }
+      }
+      console.log(addthis);
+      $("#currentdesign"+layoutid).append(addthis);
+      var tempE = document.getElementById(elementDivId);
+      tempE.style.fontSize = "2em";
+
+
+    }//end for loop through input element
+    var voteBtn = $('<button type="button" class="btn btn-default btn-sm"><span id="votesid" class="glyphicon glyphicon-heart"></span></button>');
+    var commentArea = $('<div class="col-xs-12"><textarea class="form-control" rows="1" id="comment"></textarea></div>');
+    var commentBtn = $('<li><button data-lid='+layoutid + ' type="button" onclick="sendComment(this)" class="btn btn-default btn-sm">comment</button></li>');
+    var saveBtn = $('<li><button data-lid='+layoutid+' type="button" onclick="saveLayout(this)" class="btn btn-default btn-sm">Save</button></li>');
+    var postedComments = $('<div class="col-xs-12"></div>');
+
+    var footDesc = $('<p>'+ descriptions+'</p>');
+    $("#desc"+layoutid).append(footDesc);
+    $("#footer-actions"+layoutid).append(voteBtn);
+    $("#footer-actions"+layoutid).append(saveBtn);
+    $("#footer-actions"+layoutid).append(commentBtn);
+    $("#comment"+layoutid).append(commentArea);
+
+
+
+  }
+
+  function send_comment(comment){
+
+  }
+
+
+
+
+
+
 </script>
-
 </body>
-
 </html>

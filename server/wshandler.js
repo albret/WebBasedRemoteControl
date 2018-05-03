@@ -25,6 +25,7 @@ exports.handle_request = async function(request) {
     connection.on('close', async function(reasonCode, description) {
         console.log((new Date()) + connection.remoteAddress + ' disconnected.');
         console.log('User had connection key ' + connectionKey);
+        console.log('Reason: ' + reasonCode + ' ' + connectionKey);
         await require('./rcdb').db_query('DELETE FROM wsSessions WHERE connection_key = ?', [connectionKey]);
         delete connections[connectionKey];
         console.log(Object.keys(connections));

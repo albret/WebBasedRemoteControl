@@ -11,9 +11,43 @@ ol {
   white-space: nowrap;
 }
 ol, li {
-  
+
   list-style: none;
   display: inline;
+}
+
+@media (max-width: 500px) {
+    .desktop-only {
+        display:none !important;
+    }
+}
+
+.outerblock {
+	background-color: #f4eac8;
+	border: solid;
+	border-width: 3px;
+	border-color: #dddddd;
+	margin: 1em;
+}
+.currentdesign-view {
+	margin-left: 0% !important;
+	margin-right: 0% !important;
+	padding-top: 100%;
+	overflow: hidden;
+}
+.footer-desc {
+	margin-top: 5px;
+	margin-bottom: 5px;
+	margin-left: 1em;
+	text-align: justify;
+	border: solid;
+	border-width: 2px;
+	border-color:inherit;
+}
+
+.block-header {
+	display: inline;
+  font-weight: bold;
 }
 
 @media only screen and (min-width:320px) and (max-width: 500px) {
@@ -30,7 +64,7 @@ ol, li {
     body {
         overflow-x: hidden;
     }
-    
+
     #title {
         margin-top: -20%;
         text-align: center;
@@ -90,7 +124,7 @@ ol, li {
     #profileinfo {
         width: 30%;
         margin-left: 3%;
-        margin-top: 2%;   
+        margin-top: 2%;
     }
     #profileinfo p {
         margin-left: 2%;
@@ -111,7 +145,7 @@ ol, li {
         position: relative;
         margin-top: -10%;
     }
-    
+
 .column {
   width: 20%;
   height: 20%;
@@ -139,7 +173,7 @@ ol, li {
 }
 
 .ui-state-default {
-	width: 50px;	
+	width: 50px;
 }
 
 #cmdS {
@@ -184,7 +218,7 @@ ol, li {
     }
 
     td {
-	    width: 30%;	
+	    width: 30%;
 	    text-align: center;
     }
     #bb {
@@ -201,5 +235,3 @@ ol, li {
         margin-left: 3.5%;
     }
 }
-
-

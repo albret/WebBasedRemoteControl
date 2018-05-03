@@ -244,8 +244,12 @@ exports.wss_connect = async function(key, req, res) {
 
         var currTime = Date.now();
         console.log(currTime + "|" + checkKey[0].expire);
-        if (checkKey[0].user_id != -1 && currTime < checkKey[0].expire)
+        if (checkKey[0].user_id != -1 && currTime < checkKey[0].expire) {
+            console.log('asd');
+            console.log('asd'+currTime);
+            console.log('asd'+checkKey[0].expire);
             return res.status(500).send("Internal server error: bad connection key");
+        }
         var removeConnectionKey = await rcdb_query(
             'UPDATE wsSessions SET user_id = ? WHERE user_id = ?',
             [-1, check.user_id]);
@@ -254,7 +258,8 @@ exports.wss_connect = async function(key, req, res) {
             'UPDATE wsSessions SET user_id = ?, expire = ? WHERE connection_key = ?', 
             [check.user_id, expTime, key]);
         var response = await require('./wshandler.js').send_command(key, check.username);
-        if (response) return res.send("success");
+        console.log("success 200");
+        return res.status(200).send("success");
     } catch (err) {
         return send_error(err, 500, "Internal server error");
     }
@@ -322,13 +327,50 @@ async function is_logged_in(req, res) {
     });
 }
 
+exports.get_user_layout = async function(username, req, res) {
+    try {
+        var check = await is_logged_in(req, res);
+        if (!check.auth)
+            return res.status(500).send('not logged in');
+        var data = await rcdb_query(
+`SELECT L.id, L.data, L.age, L.score, L.layout_name, L.layout_description 
+FROM layouts AS L INNER JOIN users AS U on L.user_id = U.id 
+WHERE U.username = ? AND l_active = 1`, [username]);
+        if (data.length == 0)
+            return res.send('no layouts associated with your username');
+        var resp_data = [];
+        for (var x = 0; x < data.length; x++) {
+            var cleanstr = data[x].data.slice(1, -1).replace(/\\/g, '');
+            var jdata = JSON.parse(cleanstr);
+            var layout = {};
+            layout['elements'] = jdata[0];
+            layout['types'] = jdata[1];
+            layout['names'] = jdata[2];
+            layout['elementCmds'] = jdata[3];
+            layout['heights'] = jdata[4];
+            layout['widths'] = jdata[5];
+            layout['mtops'] = jdata[6];
+            layout['mlefts'] = jdata[7];
+            layout['name'] = data[x].layout_name;
+            layout['description'] = data[x].layout_description;
+            layout['id'] = data[x].id;
+            layout['age'] = data[x].age;
+            layout['score'] = data[x].score;
+            resp_data.push(layout);
+        }
+        return res.json(resp_data);
+    } catch (err) {
+        return send_error(err, 500, 'Internal server error');
+    }
+}
+
 exports.get_layout = async function(id, req, res) {
     try {
         var check = await is_logged_in(req, res);
         if (!check.auth)
             return res.status(500).send('not logged in');
         if (typeof id == 'undefined') {
-            var data = await rcdb_query('SELECT id, data, layout_name, layout_description FROM layouts WHERE user_id = ? AND l_active = 1', [check.user_id]);
+            var data = await rcdb_query('SELECT id, data, age, score, layout_name, layout_description FROM layouts WHERE user_id = ? AND l_active = 1', [check.user_id]);
             if (data.length == 0)
                 return res.send('no layouts associated with your username');
             var resp_data = [];
@@ -347,6 +389,8 @@ exports.get_layout = async function(id, req, res) {
                 layout['name'] = data[x].layout_name;
                 layout['description'] = data[x].layout_description;
                 layout['id'] = data[x].id;
+                layout['age'] = data[x].age;
+                layout['score'] = data[x].score;
                 resp_data.push(layout);
             }
             return res.json(resp_data);
@@ -407,16 +451,16 @@ exports.publish_layout = async function(layout_id, req, res) {
             [check.user_id, layout_id]);
         if (post.length == 0)
             return res.status(500).send('cannot find layout from your library');
-        if (!post[0].p_active) {
+        //if (!post[0].p_active) {
             var curtime = Date.now();
             await rcdb_query('UPDATE layouts SET p_active = 1, age = ? WHERE user_id = ? AND id = ?',
                 [curtime, check.user_id, layout_id]);
             await rcdb_query('INSERT INTO post_votes (user_id, layout_id, vote) values (?, ?, 1)', 
                 [check.user_id, layout_id]);
             return res.send('success'); 
-        } else {
-            return res.status(500).send('active post exists');
-        }
+        //} else {
+        //    return res.status(500).send('active post exists');
+        //}
         return res.send('success');
     } catch (err) {
         return send_error(err, 500, 'Internal server error');

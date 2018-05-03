@@ -25,10 +25,13 @@ module.exports = function(app) {
         res.render('AccountCreate');
     });
     
-    app.get('/viewTemplates', async function(req, res) {
+    app.get('/viewTemplates/:username?', async function(req, res) {
         var email = await rcdb.get_user_data(req, res);
+        var username = req.params.username;
+        if (typeof username == 'undefined')
+            username = -1;
         if (!res.headersSent)
-            res.render('viewTemplates', {email: email});
+            res.render('viewTemplates', {email: email, username: username});
     });
    
     app.get('/displayLayout', async function(req, res) {
@@ -142,6 +145,11 @@ module.exports = function(app) {
 
     /////////////////////////////////Layout Editor routes////////////////////////////////
 
+    app.get('/api/get_user_layout/:username', function(req, res) {
+        var username = req.params.username;
+        return rcdb.get_user_layout(username, req, res);
+    });
+    
     app.get('/api/get_layout/:layout_id?', function(req, res) {
         var layout_id = req.params.layout_id;
         return rcdb.get_layout(layout_id, req, res);

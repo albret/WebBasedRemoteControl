@@ -17,59 +17,42 @@
 </head>
 
 <body>
+  <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container-fluid" style="height: 0%";>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Web Based Remote Control | Create Template </a>
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li class="active"><a href="/createPage">Create </a></li>
+          <li><a href="/viewTemplates">View</a></li>
+          <li><a href="/search"> Search </a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= email %> <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">View Profile</a></li>
+              <li><a href="#">Account Settings</a></li>
+              <li><a id = "cPCBtn" href="#"> Connect to PC </a></li>
+              <li><a id = "disconnectBtn" href="#"> Disconnect PC</a></li>
+              <li><a href="#">Sign Out</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+            </ul>
 
-<nav class="navbar navbar-inverse navbar-static-top">
-  <div class="container-fluid">
-    <!-- Brand and toggle get grouped for better mobile display -->
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">Web Based Remote Control | Create Template </a>
+          </li>
+        </ul>
+      </div>`
     </div>
+  </nav>
 
-    <!-- Collect the nav links, forms, and other content for toggling -->
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Create <span class="sr-only">(current)</span></a></li>
-        <li><a href="#">View</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">One more separated link</a></li>
-          </ul>
-        </li>
-      </ul>
-      <form class="navbar-form navbar-left">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search Templates">
-        </div>
-        <button type="submit" class="btn btn-default">Search</button>
-      </form>
-      <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= email %> <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#">View Profile</a></li>
-            <li><a href="#">Account Settings</a></li>
-            <li><a href="#">Sign Out</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div><!-- /.navbar-collapse -->
-  </div><!-- /.container-fluid -->
-</nav>
 
 <div style="width: 30%; margin-left: 5%; margin-top: 5%;">
   <ol id="selectable" style="margin-left:5%; margin-top: 5%; width: 30%;">
@@ -111,27 +94,25 @@
   <li id="u36" value=36 class="ui-widget-content">36</li>
 
 	</ol>
-	
+
 	<div style="width: 70%; margin-left: 8%; margin-top: 3%;">
-				<div id="inputstyle" style="float:left; margin-left: 3%;"> 
+				<div id="inputstyle" style="float:left; margin-left: 3%;">
 		 <div class="radio">
   			<label><input onClick="change()" type="radio" checked="checked" name="optradio" id="button">Button</label>
-		  </div>
-		  <div class="radio">
+		  </div>		 
+ <div class="radio">
   			<label><input onClick="change()" type="radio" name="optradio" id="slider">Slider</label>
 		  </div>
 	  <div class="radio">
   	  	<label><input onClick="change()" type="radio" name="optradio" id="file">File</label>
 	  </div>
 		  </div>
-							
-		 
 			 <div class="form-group" style="margin-left: 30%;">
   <label for="usr">Input name:</label>
   <input type="text" class="form-control" id="btnName">
 			</div>
 
-		
+
 		<select style="margin-top: 10%; "class="form-control form-control-lg b" id="cmdb1">
 			<option value="" disabled selected>1</option>
 		   <option>a</option>
@@ -225,7 +206,8 @@
 <option>right</option>
 <option>space</option>
 <option>backspace</option>
-<option>esc</option> 
+<option>esc</option>
+<option>del</option> 
         </select>
 		<select class="form-control form-control-lg b" id="cmdb2">
 			<option value="" disabled selected>2</option>
@@ -320,7 +302,8 @@
 <option>right</option>
 <option>space</option>
 <option>backspace</option>
-<option>esc</option> 
+<option>esc</option>
+<option>del</option> 
 		</select>
 		<select class="form-control form-control-lg b" id="cmdb3">
 			<option value="" disabled selected>3</option>
@@ -416,16 +399,17 @@
 <option>space</option>
 <option>backspace</option>
 <option>esc</option> 
+<option>del</option>
 		</select>
 		<select style="margin-top: -20%;" class="form-control form-control-lg b" id="cmdS">
   <option>VOLUME</option>
 </select>
 		<button style="margin-top: 3%; margin-left: 35.5%;" type="button" class="btn" onClick="addElement()">Add Element</button>
-		
+
 		<input type="text" class="form-control" id="filepath">
-	  	 
+
 				</div>
-	
+
 	</div>
 	<div id="currentcmds">
 			<h1 style="margin-top: -17%; text-align:center;"> Current Commands </h1>
@@ -440,11 +424,11 @@
 		<div class="form-group" style="diplay: inline-block; width: 30%; margin-top: 5%; margin-left:15%;">
   <label>Elements:</label>
   <select class="form-control" id="ElementList">
-	  
+
 
   </select>
 		<button style="margin-left: 130%; margin-top:-22.7%;" type="button" class="btn" onClick="deleteElement()">Delete Element</button>
-    
+
     <div class="form-group" style="margin-top:5%;">
         <label for="description"> Description </label>
         <textarea style="height:150%; max-height:150%; width: 200%; max-width:200%;"class="form-control" rows=2 id="description"></textarea>
@@ -456,8 +440,8 @@
 				<input type="text" style="margin-top: 125%; position: absolute;" class="form-control" id="layoutname" placeholder="Enter Layout Name (20 Characters or less)">
                 <button style="position: absolute; margin-top: 135%; margin-left: 39%;" type="button" class="btn" onClick="saveDesign()">Save Design</button>
 
-	</div>	
-	
+	</div>
+
 
 <script>
 	var idtot = 0;
@@ -470,19 +454,19 @@
 	var widths = new Array();
 	var mtops = new Array();
 	var mlefts = new Array();
-	
+
 	$(document).ready(function () {
 		$('.dropdown-toggle').dropdown();
 	});
-	
+
 	$( function() {
     $( "#selectable" ).selectable();
   } );
-	
+
 	//$('#selectable').bind("mousedown", function (e) {
     //       e.metaKey = false;
  	//}).selectable();
-	
+
 	function change() {
 	if (document.getElementById('slider').checked == true) {
 		document.getElementById('cmdb1').style.visibility="hidden";
@@ -499,7 +483,7 @@
 		document.getElementById('filepath').style.visibility="hidden";
 	}
 	}
-	
+
     function addElement() {
 		var blocks = document.getElementsByClassName("ui-widget-content ui-selectee ui-selected");
 		var result = new Array();
@@ -534,12 +518,12 @@
 			var cmd1 = document.getElementById("cmdb1").value;
 			var cmd2 = document.getElementById("cmdb2").value;
 			var cmd3 = document.getElementById("cmdb3").value;
-			
+
 			if (cmd1 == "") {
 				alert("Input 1 cannot be left blank!");
 				return;
 			} else if (cmd1 == "" && cmd2 == "" && cmd3 == "") {
-				alert("At least one input must be chosen");	
+				alert("At least one input must be chosen");
 				return;
 			} else {
 				cmds.push(cmd1);
@@ -551,66 +535,66 @@
 			type = "File";
 			var path = document.getElementById("filepath").value;
 			if (path == "") {
-				alert("File path must be given!");	
+				alert("File path must be given!");
 				return;
 			} else {
 				cmds.push(path);
 			}
-			
+
 		}
-		
+
 		//If everything is good
 		for (var i = 0; i < blocks.length; ++i) {
-			usedblocks[blocks[i].value-1] = 1;	
+			usedblocks[blocks[i].value-1] = 1;
 		}
 		elements.push(result);
 		names.push(name);
 		types.push(type);
 		elementCmds.push(cmds);
-		
+
 		//console.log(types.toString());
-		
+
 		document.getElementById("cmdb1").value = "";
 		document.getElementById("cmdb2").value = "";
 		document.getElementById("cmdb3").value = "";
 		document.getElementById("filepath").value = "";
 		document.getElementById("cmdS").value = "";
 		document.getElementById("btnName").value = "";
-		
+
 		var table = document.getElementById("table");
 		var row = table.insertRow(table.rows.length);
 		var cell1 = row.insertCell(0);
 		var cell2 = row.insertCell(1);
 		var cell3 = row.insertCell(2);
 		var cell4 = row.insertCell(3);
-		
+
 		var c1 = document.createTextNode(name);
 		var c2 = document.createTextNode(type);
 		var c3 = document.createTextNode(result.toString());
-		
+
 		var cmdString = "";
 		for (var i = 0; i < cmds.length; i++) {
 			if (i > 0 && i < cmds.length && cmds[i] != "") {
-				cmdString += "+";	
+				cmdString += "+";
 			}
-			cmdString += cmds[i];	
+			cmdString += cmds[i];
 		}
 		var c4 = document.createTextNode(cmdString);
-		
+
 		cell1.appendChild(c1);
 		cell2.appendChild(c2);
 		cell3.appendChild(c3);
 		cell4.appendChild(c4);
-		
+
 		var list = document.getElementById("ElementList");
 		var option = document.createElement("option");
 		option.text = name;
 		list.add(option);
-		
+
 		displayElement(elements.length - 1);
-		
+
 	}
-	
+
 	function deleteElement() {
 			var element = document.getElementById("ElementList");
 			var index = element.selectedIndex;
@@ -624,11 +608,11 @@
 			}
 			var confirmation = confirm("Are you sure you want to delete element: " + names[index] + "?");
 			if (confirmation == 0) {
-				return;	
+				return;
 			} else {
 				for (var i = 0; i < elements[index].length; i++) {
 					console.log(usedblocks[elements[index][i] - 1]);
-					usedblocks[elements[index][i] - 1] = 0;	
+					usedblocks[elements[index][i] - 1] = 0;
 				}
                 if (index != size - 1) {
                 for (var i = index + 1; i < size; i++) {
@@ -654,19 +638,19 @@
                 document.getElementById("table").deleteRow(index + 1);
 				element.remove(index);
 				document.getElementById(name + index).remove();
-			}		 	
+			}
 	}
-	
+
 	function displayElement(index) {
 		var hMulti = Math.floor((elements[index][elements[index].length - 1] / 6)) - Math.floor((elements[index][0] / 6));
 		if (Math.floor(elements[index][elements[index].length - 1] / 6) == 6 && (Math.floor(elements[index][0] / 6)) == 0) {
             hMulti++;
 		}
 		if (elements[index][elements[index].length - 1] - elements[index][0] <= 5) {
-			hMulti = 0;	
+			hMulti = 0;
 		}
 		//if (elements[index][0] % 6 == 0) {
-		//	hMulti--;	
+		//	hMulti--;
 		//}
 		var wMulti = 1;
 		for (var i = 1; i < elements[index].length; i++) {
@@ -683,25 +667,25 @@
         if (elements[index][0] % 6 > 0 && elements[index][elements[index].length - 1] % 6 == 0) {
             isendlast = 1;
         }
-		
+
         var blocksbottom = Math.trunc(parseInt(elements[index][elements[index].length - 1], 10) / 6);
         //alert(elements[index][elements[index].length - 1] % 6);
         if (elements[index][elements[index].length - 1] % 6 == 0) {
-          
+
             blocksbottom--;
-        }    
+        }
         var bottom = (5 - blocksbottom) * 16.66;
         if (elements[index][elements[index].length - 1] / 6 == 6) {
             bottom = 0;
         }
         var height = 16.66 * (hMulti + 1 - isendlast);
 		if (height == 0) {
-			height = 16.66;	
+			height = 16.66;
 		}
 
 		var width = 16.66 * wMulti;
 		var mtopviz = 16.66 * (Math.floor(elements[index][0] / 6) - isend) + 7.4; //7.4% gets into box
-	
+
         var mtop = mtopviz - 7.4;
         if (elements[index][0] / 6 > 1) {
             //mtop += 16.66 + (0.5 * height) + 4.5;
@@ -713,20 +697,20 @@
             mtopviz += (Math.floor(elements[index][0] / 6)) - (hMulti + 1 - isend);
             if (elements[index][0] / 6 >= 5) {
                 mtopviz += 3;
-            } 
-      
+            }
+
         }
         var mleft = 16.66 * (Math.floor(elements[index][0] % 6) - 1);
 		if (elements[index][0] % 6 == 0) {
-			mleft = 16.66 * 5;	
+			mleft = 16.66 * 5;
 		}
-        
-        console.log("htmulti: " + hMulti); 
+
+        console.log("htmulti: " + hMulti);
         console.log("height: " + height);
         console.log("width: " + width);
         console.log("mtopviz: " + mtopviz);
         console.log("mtop: " + mtop);
-		
+
         var addthis = "";
 		if (types[index] == "Button") {
 			addthis = "<button id=\"" + (names[index] + idtot) + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mleft + "%; height: " + height + "%; width: " + width + "%;\" type=\"button\" class=\"btn\"\"> " + names[index] + "</button>";
@@ -744,10 +728,10 @@
 		widths.push(width);
 		mtops.push(mtop);
 		mlefts.push(mleft);
-		
+
 		document.getElementById("currentdesign").innerHTML += addthis;
 	}
-	
+
 	function saveDesign() {
 		//Make ajax call with data sent
 		//we have all the data saved in arrays, just pass the arrays as data to routes
@@ -760,7 +744,7 @@
         }
         var layoutname = document.getElementById('layoutname').value;
         var description = document.getElementById('description').value;
-        
+
         if (description == "") {
             alert("Description cannot be empty!");
             return;
@@ -789,10 +773,12 @@
                 description: description
 			},
 			success: function(res) {
-            
+            var msg = JSON.stringify(res);
+            console.log("api_save_layout success"+ msg);
 			}
-		});	
+		});
 	}
 </script>
 </body>
 <html>
+

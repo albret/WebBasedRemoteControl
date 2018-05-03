@@ -1,13 +1,13 @@
 <html>
 <head>
- <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
-	<script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-	<script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
-	<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
-	<link rel="stylesheet" type="text/css" href="./style.css">
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  <script type="text/javascript" src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.1/jquery-ui.min.js"></script>
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+  <link rel="stylesheet" type="text/css" href="./style.css">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-	<style>
+  <style>
   #feedback { font-size: 1.4em; }
   #selectable .ui-selecting { background: #FECA40; }
   #selectable .ui-selected { background: #F39814; color: white; }
@@ -16,207 +16,254 @@
   </style>
 </head>
 <body>
-<nav class="navbar navbar-inverse navbar-static-top">
-  <div class="container-fluid" style="height: 0%";>
-    <div class="navbar-header">
-      <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
-        <span class="sr-only">Toggle navigation</span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-        <span class="icon-bar"></span>
-      </button>
-      <a class="navbar-brand" href="#">Web Based Remote Control | Create Template </a>
+    <nav class="navbar navbar-inverse navbar-static-top">
+    <div class="container-fluid" style="height: 0%";>
+      <div class="navbar-header">
+        <button type="button" class="navbar-toggle collapsed" data-toggle="collapse" data-target="#bs-example-navbar-collapse-1" aria-expanded="false">
+          <span class="sr-only">Toggle navigation</span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+        <a class="navbar-brand" href="#">Web Based Remote Control | Search Templates </a>
+      </div>
+      <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
+        <ul class="nav navbar-nav">
+          <li><a href="/createPage">Create </a></li>
+          <li><a href="/viewTemplates">View</a></li>
+          <li><a href="/search"> Search </a></li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li class="dropdown">
+            <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false"><%= email %> <span class="caret"></span></a>
+            <ul class="dropdown-menu">
+              <li><a href="#">View Profile</a></li>
+              <li><a href="#">Account Settings</a></li>
+              <li><a id = "cPCBtn" href="#"> Connect to PC </a></li>
+              <li><a id = "disconnectBtn" href="#"> Disconnect PC</a></li>
+              <li><a href="#">Sign Out</a></li>
+              <li role="separator" class="divider"></li>
+              <li><a href="#">Separated link</a></li>
+            </ul>
+
+          </li>
+        </ul>
+      </div>`
     </div>
-    <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
-      <ul class="nav navbar-nav">
-        <li class="active"><a href="#">Create <span class="sr-only">(current)</span></a></li>
-        <li><a href="#">View</a></li>
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Dropdown <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#">Action</a></li>
-            <li><a href="#">Another action</a></li>
-            <li><a href="#">Something else here</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">One more separated link</a></li>
-          </ul>
-        </li>
-      </ul>
-      <form class="navbar-form navbar-left">
-        <div class="form-group">
-          <input type="text" class="form-control" placeholder="Search Templates">
-        </div>
-        <button type="submit" class="btn btn-default">Search</button>
-      </form>
-      <ul class="nav navbar-nav navbar-right">
-        <li class="dropdown">
-          <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-haspopup="true" aria-expanded="false">Account <span class="caret"></span></a>
-          <ul class="dropdown-menu">
-            <li><a href="#">View Profile</a></li>
-            <li><a href="#">Account Settings</a></li>
-            <li><a href="#">Sign Out</a></li>
-            <li role="separator" class="divider"></li>
-            <li><a href="#">Separated link</a></li>
-          </ul>
-        </li>
-      </ul>
-    </div>`
+  </nav>
+
+
+  <div id="templatecontainer" style=" position: relative; width: 100%; height: 100%; margin-top:-4.5%;">
   </div>
-</nav>
 
+  <script>
+        $(".btn").click(function(e) {
+      alert("here!");
+      var id = e.target.id;
+      var cmds = elementCmds[id];
+      var type = "";
+      var allletters = 0;
+      $.ajax({
+        url: '/api/send_command',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+          command: cmds
+        },
+        success: function(data) {
 
-<div id="templatecontainer" style=" position: relative; width: 100%; height: 100%; margin-top:-4.5%;">
-</div>
-
-<script>
-    var valid = 0;
-    while (valid == 0) {
-        var code = prompt("Enter a connection code:");
-        if (code === null) {
-            break;
+        },
+        error: function(res) {
+          console.log("error!");
         }
-        $.ajax({
-            url: '/api/wss_connect',
-            type: 'POST',
-            data: {
-                connectionKey: code
-            },
-            success: function(res) { 
-                
-            }
-        });
+      });
+    });
+
+
+
+
+  var elements = new Array();
+  var names = new Array();
+  var types = new Array();
+  var elementCmds = new Array();
+  var heights = new Array();
+  var widths = new Array();
+  var mtops = new Array();
+  var mlefts = new Array();
+
+  var urlS = window.location.href;
+  var url = new URL(urlS);
+  var id = url.searchParams.get("layout_id");
+  //alert(id);
+  $( document ).ready(function() {
+    console.log( "ready!" );
+    connectPC();
+  });
+/*
+      $(".btn").click(function(e) {
+      alert("here!");
+      var id = e.target.id;
+      var cmds = elementCmds[id];
+      var type = "";
+      var allletters = 0;
+      $.ajax({
+        url: '/api/send_command',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+          command: cmds
+        },
+        success: function(data) {
+
+        },
+        error: function(res) {
+          console.log("error!");
+        }
+      });
+    });
+*/
+  function displayData(data) {
+    //retrieve arrays from data
+    var eid;
+    for (eid = 0; eid < heights.length; eid++) {
+      var addthis = "";
+      var blockstobottom = Math.trunc(parseInt(elements[eid][elements[eid].length - 1], 10) / 6);
+      if (parseInt(elements[eid][elements[eid].length - 1], 10) % 6 == 0) {
+        blockstobottom--;
+      }
+      console.log(blockstobottom);
+      var bottom = (5 - blockstobottom) * 16.66;
+
+      if (types[eid] == "Button") {
+        addthis = "<button id=\"" + eid + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + (parseInt(heights[eid], 10))/*heights[eid]*/ + "%; width: " + widths[eid] + "%;\" type=\"button\" class=\"btn\"\"> " + names[eid] + "</button>";
+      } else if (types[eid] == "Slider") {
+        //addthis = "<input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"" + eid + "\">"
+        if (parseInt(heights[eid], 10) > parseInt(widths[eid], 10)) {
+          addthis = "<input onChange=slid(this.value) id=\"" + eid + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + (parseInt(heights[eid], 10)) /*heights[eid]*/ + "%; width: " + widths[eid] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+        } else {
+            addthis = "<input onChange=slid(this.value, this.id) id=\"" + (names[eid] + eid) + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + heights[eid] + "%; width: " + widths[eid] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
+            
+}
+        console.log(addthis);
+      }
+
+      document.getElementById("templatecontainer").innerHTML += addthis;
+
     }
-    
-	var elements = new Array();
-	var names = new Array();
-	var types = new Array();
-	var elementCmds = new Array();
-	var heights = new Array();
-	var widths = new Array();
-	var mtops = new Array();
-	var mlefts = new Array();
+    }
+    /*
+    function slid(value, eid) {
+      var cmds = elementCmds[id];
+      $.ajax({
+        url: '/api/send_command',
+        type: 'POST',
+        dataType: 'json',
+        data: {
+          command: cmds
+        },
+        success: function(data) {
 
-    var urlS = window.location.href;
-    var url = new URL(urlS);
-    var id = url.searchParams.get("layout_id");    
-
-	$.ajax({
-			url: '/api/get_layout/'+id,
-			type: 'GET',
-			dataType: 'json',
-			success: function(data) {
-                elements = data.elements;
-                names = data.names;
-                types = data.types;
-                elementCmds = data.elementCmds;
-                heights = data.heights;
-                widths = data.widths;
-                mtops = data.mtops;
-                mlefts = data.mlefts;
-                displayData(data);	
-			},
-			error: function(res) {
-				console.log("error!");
-			}
-		});
-	
-	function displayData(data) {
-		//retrieve arrays from data
-        var eid;
-        for (eid = 0; eid < heights.length; eid++) {
-            var addthis = "";
-            var blockstobottom = Math.trunc(parseInt(elements[eid][elements[eid].length - 1], 10) / 6);
-            if (parseInt(elements[eid][elements[eid].length - 1], 10) % 6 == 0) {
-                blockstobottom--;
-            }
-            console.log(blockstobottom);
-            var bottom = (5 - blockstobottom) * 16.66;
-           
-            if (types[eid] == "Button") {
-                addthis = "<button id=\"" + eid + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + (parseInt(heights[eid], 10))/*heights[eid]*/ + "%; width: " + widths[eid] + "%;\" type=\"button\" class=\"btn\"\"> " + names[eid] + "</button>";
-            } else if (types[eid] == "Slider") {
-            //addthis = "<input type=\"range\" min=\"1\" max=\"100\" value=\"50\" class=\"slider\" id=\"" + eid + "\">"
-            if (parseInt(heights[eid], 10) > parseInt(widths[eid], 10)) {
-                addthis = "<input id=\"" + eid + "\"style=\"-webkit-appearance: slider-vertical; position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + (parseInt(heights[eid], 10)) /*heights[eid]*/ + "%; width: " + widths[eid] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
-            } else {
-                addthis = "<input id=\"" + (names[eid] + eid) + "\"style=\"position: absolute; bottom: " + bottom + "%; margin-left: " + mlefts[eid] + "%; height: " + heights[eid] + "%; width: " + widths[eid] + "%;\" type=\"range\" min=\"1\" max=\"100\" value=\"50\"\" class=\"slider\"> </input>";
-
-            }
-            console.log(addthis);
+        },
+        error: function(res) {
+          console.log("error!");
         }
-            
-            document.getElementById("templatecontainer").innerHTML += addthis;
+      });
 
-        }
-        
-	
-    $("button").click(function(e) {
-            var id = e.target.id;
-            var cmds = elementCmds[id];
-           
-            $.ajax({
-            url: '/api/send_command',
-            type: 'POST',
-            dataType: 'json',
-            data: {
-                command: cmds
-            },
-            success: function(data) {
-                
-            },
-            error: function(res) {
-                console.log("error!");
-            }
-        });
-        
-    $("input").on('slide', function(e) {
+      $("input").on('slide', function(e) {
         var id = e.target.id;
-        alert(id);
-    });
-    });
-    } 
-        
-        var valid = 0;
-        while (valid == 0) {
-            var code = prompt("Please enter connection code from desktop application");
-            console.log(code);
-            if (code === null) {
-                window.location.href = 'https://applepie.albert.tech/home';
-                /*
-                $.ajax(
-                    url: '/home',
-                    type: 'GET',
-                    success: function(res) {
+        //alert(id);
+      });
 
-                    }
-                });
-                */
-            }
-            $.ajax({
-                url: '/api/wss_connect',
-                type: 'POST',
-                dataType: 'json',
-                data: {
-                    connectionKey: code
-                },
-                success: function(res) {
-                     alert("we good!\n");
-                     valid = 1; 
-                }, 
-                error: function(res) {
-                    alert("Invlid connection code given!");
-                }
-            
-            });
-        }
-         
-        //console.log("hello");
-    
-   
+    }
+*/
+  function setCookie(cname,cvalue,exmins) {
+    var d = new Date();
+    console.log("d = "+ d);
+    d.setTime(d.getTime() + (exmins* 60 * 1000));
+    //d.setTime(d.getTime() + 10);
+    console.log(d.toUTCString());
+    var expires = "expires=" + d.toUTCString();
+    console.log(expires);
+    document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+  }
 
-    
+
+
+  function getCookie(cname) {
+    var name = cname + "=";
+    var decodedCookie = decodeURIComponent(document.cookie);
+    var ca = decodedCookie.split(';');
+    for(var i = 0; i < ca.length; i++) {
+      var c = ca[i];
+      while (c.charAt(0) == ' ') {
+        c = c.substring(1);
+      }
+      if (c.indexOf(name) == 0) {
+        return c.substring(name.length, c.length);
+      }
+    }
+    return "";
+  }
+
+  function connectPC() {
+    var wsConnection = getCookie("WSconnect");
+    if (wsConnection == "true") {
+      alert("You're connected to WS PC!");
+      loadLayout();
+    } else {
+      var key = prompt("Please enter your key from PC:","");
+      if (key == null || key.length != 4){
+        alert("key must be 4 digit!");
+        window.location.href = "https://applepie.albert.tech/viewTemplates";
+      }
+      else {
+        console.log(key);
+
+        $.ajax({
+          url: '/api/wss_connect',
+          type: 'POST',
+          data: {
+            'connectionKey': key
+          },
+          success: function(res) {
+            setCookie("WSconnect", true, 20);
+            alert("You're now connected to your PC!");
+            loadLayout();
+          },
+          error: function(res) {
+            //var msg = JSON.stringify(res);
+            alert("Connect to PC failed!");
+            window.location.href = "https://applepie.albert.tech/viewTemplates";
+          }
+
+        });
+
+      }
+    }
+  }//end of function
+
+  function loadLayout(){
+    $.ajax({
+      url: '/api/get_layout/'+id,
+      type: 'GET',
+      dataType: 'json',
+      success: function(data) {
+        elements = data.elements;
+        names = data.names;
+        types = data.types;
+        elementCmds = data.elementCmds;
+        heights = data.heights;
+        widths = data.widths;
+        mtops = data.mtops;
+        mlefts = data.mlefts;
+        displayData(data);
+        //connectPC();
+      },
+      error: function(res) {
+        console.log("error!");
+      }
+    });
+  }
 </script>
 
 </body>
